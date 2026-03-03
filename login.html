@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Elite Indonesian Obbyist</title>
+  <link rel="icon" type="image/png" href="eio-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #CE1126;
+      --red-dark: #8B0000;
+      --white: #FFFFFF;
+      --off-white: #F7F7F7;
+      --border: #E2E2E2;
+      --text: #1a1a1a;
+      --text-muted: #777;
+      
+      
+      
+      
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      width: 45%;
+      background: var(--red-dark);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 50%;
+      background: rgba(245,245,240,0.06);
+    }
+
+    .left-bg-text {
+      position: absolute;
+      font-family: 'Inter', sans-serif; font-weight: 900;
+      font-size: 18rem;
+      line-height: 1;
+      color: rgba(0,0,0,0.15);
+      bottom: -2rem;
+      left: -1rem;
+      pointer-events: none;
+      letter-spacing: -5px;
+    }
+
+    .left-logo {
+      font-family: 'Inter', sans-serif; font-weight: 900;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      color: var(--text);
+      text-decoration: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .left-content h2 {
+      font-family: 'Inter', sans-serif; font-weight: 900;
+      font-size: 3.5rem;
+      line-height: 1;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .left-content p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* TABS */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 2.5rem;
+    }
+
+    .tab-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.8rem 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-btn.active {
+      color: var(--text);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 2px;
+      background: var(--red);
+    }
+
+    /* FORMS */
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    .form-title {
+      font-family: 'Inter', sans-serif; font-weight: 900;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--dark2);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      padding: 0.85rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--red);
+    }
+
+    .form-input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--red);
+      border: 1px solid var(--red);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      background: transparent;
+      color: var(--red);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .divider span {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .btn-google {
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+    }
+
+    .btn-google:hover {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .error-msg {
+      background: rgba(206,17,38,0.1);
+      border: 1px solid rgba(206,17,38,0.3);
+      color: #ff6677;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .success-msg {
+      background: rgba(0,200,100,0.1);
+      border: 1px solid rgba(0,200,100,0.3);
+      color: #44ff88;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* ROBLOX STEP */
+    .roblox-step {
+      display: none;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .roblox-step.active { display: block; }
+
+    .step-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--red);
+      background: rgba(206,17,38,0.1);
+      border: 1px solid rgba(206,17,38,0.2);
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .left-panel { display: none; }
+      .right-panel { padding: 2rem 1.5rem; }
+    }
+  
+    .lang-toggle { display: flex; border: 1.5px solid #E2E2E2; overflow: hidden; border-radius: 4px; }
+    .lang-btn { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.4rem 0.7rem; background: transparent; border: none; cursor: pointer; color: #777; transition: all 0.2s; }
+    .lang-btn.active { background: #CE1126; color: white; }
+    .left-panel .lang-btn { color: rgba(255,255,255,0.7); }
+    .left-panel .lang-btn.active { background: white; color: #CE1126; }
+    .left-panel .lang-toggle { border-color: rgba(255,255,255,0.4); }
+</style>
+</head>
+<body>
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="left-bg-text">EIO</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;margin-bottom:2rem"><a href="index.html" class="left-logo" style="margin-bottom:0">EIO</a><div class="lang-toggle" style="border-color:rgba(255,255,255,0.4)">
+        <button class="lang-btn" data-lang="id" onclick="setLang('id')">IDN</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">ENG</button>
+      </div></div>
+    <div class="left-content">
+      <h2 data-id="left-title">MASUK KE<br>KOMUNITAS<br>ELITE</h2>
+      <p data-id="left-sub">Track progress tower obbymu dan buktikan kemampuanmu di antara para elite Indonesia.</p>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div class="auth-box">
+
+      <!-- NORMAL AUTH -->
+      <div id="auth-section">
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('login')" data-id="tab-login">Login</button>
+          <button class="tab-btn" onclick="switchTab('register')" data-id="tab-register">Daftar</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="login-form" class="auth-form active">
+          <h2 class="form-title" data-id="login-title">SELAMAT DATANG</h2>
+          <p class="form-sub" data-id="login-sub">Masuk ke akun EIO kamu</p>
+          <div id="login-error" class="error-msg"></div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="login-email" placeholder="email@kamu.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="login-password" placeholder="••••••••">
+          </div>
+          <button class="btn-submit" id="login-btn" onclick="doLogin()" data-id="btn-login">Masuk →</button>
+          <div class="divider"><span>atau</span></div>
+          <button class="btn-google" onclick="doGoogle()">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Lanjutkan dengan Google
+          </button>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="register-form" class="auth-form">
+          <h2 class="form-title" data-id="register-title">BUAT AKUN</h2>
+          <p class="form-sub" data-id="register-sub">Bergabung dengan komunitas EIO</p>
+          <div id="register-error" class="error-msg"></div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="reg-email" placeholder="email@kamu.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="reg-password" placeholder="Min. 6 karakter">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konfirmasi Password</label>
+            <input type="password" class="form-input" id="reg-confirm" placeholder="Ulangi password">
+          </div>
+          <button class="btn-submit" id="register-btn" onclick="doRegister()" data-id="btn-register">Daftar →</button>
+          <div class="divider"><span>atau</span></div>
+          <button class="btn-google" onclick="doGoogle()">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Daftar dengan Google
+          </button>
+        </div>
+      </div>
+
+      <!-- ROBLOX STEP -->
+      <div id="roblox-section" class="roblox-step">
+        <span class="step-badge">Step 2 of 2</span>
+        <h2 class="form-title" data-id="roblox-title">USERNAME<br>ROBLOX</h2>
+        <p class="form-sub" data-id="roblox-sub">Masukkan username Roblox kamu untuk mulai tracking progress tower.</p>
+        <div id="roblox-error" class="error-msg"></div>
+        <div id="roblox-success" class="success-msg"></div>
+        <div class="form-group">
+          <label class="form-label">Username Roblox</label>
+          <input type="text" class="form-input" id="roblox-username" placeholder="contoh: PlayerXYZ">
+        </div>
+        <button class="btn-submit" id="roblox-btn" onclick="saveRoblox()" data-id="btn-roblox">Simpan & Mulai Tracking →</button>
+      </div>
+
+    </div>
+  </div>
+
+  
+
+  
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
+      authDomain: "eio-website.firebaseapp.com",
+      projectId: "eio-website",
+      storageBucket: "eio-website.firebasestorage.app",
+      messagingSenderId: "1030038379623",
+      appId: "1:1030038379623:web:54d24cb244d6dc9ade48c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().robloxUsername) {
+          window.location.href = 'dashboard.html';
+        } else {
+          // Show roblox step
+          document.getElementById('auth-section').style.display = 'none';
+          document.getElementById('roblox-section').classList.add('active');
+        }
+      }
+    });
+
+    window.switchTab = (tab) => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+      document.getElementById(`${tab}-form`).classList.add('active');
+    };
+
+    window.doLogin = async () => {
+      const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-password').value;
+      const btn = document.getElementById('login-btn');
+      const errEl = document.getElementById('login-error');
+      errEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Memproses...';
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch(e) {
+        errEl.textContent = getErrorMsg(e.code);
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Masuk →';
+      }
+    };
+
+    window.doRegister = async () => {
+      const email = document.getElementById('reg-email').value;
+      const pass = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm').value;
+      const btn = document.getElementById('register-btn');
+      const errEl = document.getElementById('register-error');
+      errEl.style.display = 'none';
+      if (pass !== confirm) {
+        errEl.textContent = 'Password tidak cocok!';
+        errEl.style.display = 'block';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Memproses...';
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+      } catch(e) {
+        errEl.textContent = getErrorMsg(e.code);
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Daftar →';
+      }
+    };
+
+    window.doGoogle = async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch(e) {
+        console.error(e);
+      }
+    };
+
+    window.saveRoblox = async () => {
+      const username = document.getElementById('roblox-username').value.trim();
+      const btn = document.getElementById('roblox-btn');
+      const errEl = document.getElementById('roblox-error');
+      const sucEl = document.getElementById('roblox-success');
+      errEl.style.display = 'none';
+      if (!username) {
+        errEl.textContent = 'Username Roblox tidak boleh kosong!';
+        errEl.style.display = 'block';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+      try {
+        // Get Roblox user ID from username
+        const robloxRes = await fetch(`https://api.towerstats.com/api/game_badges`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apiKey': '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143' },
+          body: JSON.stringify({ id: 0, universe_id: 8562822414 })
+        });
+
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          email: currentUser.email,
+          robloxUsername: username,
+          joinedAt: new Date().toISOString(),
+          completions: []
+        });
+
+        sucEl.textContent = 'Username disimpan! Mengalihkan...';
+        sucEl.style.display = 'block';
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+      } catch(e) {
+        errEl.textContent = 'Gagal menyimpan. Coba lagi.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan & Mulai Tracking →';
+      }
+    };
+
+    function getErrorMsg(code) {
+      const msgs = {
+        'auth/invalid-email': 'Format email tidak valid.',
+        'auth/user-not-found': 'Akun tidak ditemukan.',
+        'auth/wrong-password': 'Password salah.',
+        'auth/email-already-in-use': 'Email sudah terdaftar.',
+        'auth/weak-password': 'Password terlalu lemah (min. 6 karakter).',
+        'auth/invalid-credential': 'Email atau password salah.',
+      };
+      return msgs[code] || 'Terjadi kesalahan. Coba lagi.';
+    }
+  </script>
+
+  
+
+  
+  <script>
+    (function() {
+      var T = {
+    "id": {
+        "left-title": "MASUK KE<br>KOMUNITAS<br>ELITE",
+        "left-sub": "Track progress tower obbymu dan buktikan kemampuanmu di antara para elite Indonesia.",
+        "tab-login": "Login",
+        "tab-register": "Daftar",
+        "login-title": "SELAMAT DATANG",
+        "login-sub": "Masuk ke akun EIO kamu",
+        "btn-login": "Masuk →",
+        "btn-google-login": "Lanjutkan dengan Google",
+        "register-title": "BUAT AKUN",
+        "register-sub": "Bergabung dengan komunitas EIO",
+        "btn-register": "Daftar →",
+        "btn-google-reg": "Daftar dengan Google",
+        "roblox-title": "USERNAME<br>ROBLOX",
+        "roblox-sub": "Masukkan username Roblox kamu untuk mulai tracking progress tower.",
+        "btn-roblox": "Simpan & Mulai Tracking →"
+    },
+    "en": {
+        "left-title": "JOIN THE<br>ELITE<br>COMMUNITY",
+        "left-sub": "Track your tower obby progress and prove your skills among Indonesia's elite.",
+        "tab-login": "Login",
+        "tab-register": "Register",
+        "login-title": "WELCOME BACK",
+        "login-sub": "Sign in to your EIO account",
+        "btn-login": "Sign In →",
+        "btn-google-login": "Continue with Google",
+        "register-title": "CREATE ACCOUNT",
+        "register-sub": "Join the EIO community",
+        "btn-register": "Register →",
+        "btn-google-reg": "Register with Google",
+        "roblox-title": "ROBLOX<br>USERNAME",
+        "roblox-sub": "Enter your Roblox username to start tracking your tower progress.",
+        "btn-roblox": "Save & Start Tracking →"
+    }
+};
+      window.setLang = function(l) {
+        localStorage.setItem('eio-lang', l);
+        applyLang(l);
+      };
+      function applyLang(l) {
+        var t = T[l] || T['id'];
+        document.querySelectorAll('[data-id]').forEach(function(el) {
+          var key = el.getAttribute('data-id');
+          if (!t[key]) return;
+          if (el.tagName === 'INPUT') { el.placeholder = t[key]; }
+          else if (el.tagName === 'A' || el.tagName === 'BUTTON') { el.textContent = t[key]; }
+          else { el.innerHTML = t[key]; }
+        });
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
+          btn.classList.toggle('active', btn.getAttribute('data-lang') === l);
+        });
+      }
+      var saved = localStorage.getItem('eio-lang') || 'id';
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>

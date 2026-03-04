@@ -156,6 +156,20 @@
     </div>
   </nav>
 
+
+  <!-- NOT LOGGED IN PROMPT -->
+  <div id="not-logged-in" style="display:none; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; padding:3rem;">
+    <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+    <p style="font-size:0.7rem; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:#CE1126; margin-bottom:0.5rem;">Akses Terbatas</p>
+    <h2 style="font-size:2rem; font-weight:900; margin-bottom:1rem;">KAMU BELUM LOGIN</h2>
+    <p style="color:#777; font-size:0.95rem; margin-bottom:2rem; max-width:400px;">Login atau daftar dulu untuk mengakses dashboard dan mulai tracking progress tower kamu.</p>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+      <a href="login.html" style="font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:0.9rem 2rem; background:#CE1126; color:white; text-decoration:none; border:1.5px solid #CE1126;">Login →</a>
+      <a href="login.html?tab=register" style="font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:0.9rem 2rem; background:transparent; color:#1a1a1a; text-decoration:none; border:1.5px solid #E2E2E2;">Daftar Sekarang</a>
+    </div>
+  </div>
+
+  <div id="dashboard-content">
   <div class="main">
     <div class="welcome-bar">
       <div>
@@ -207,6 +221,8 @@
       </tbody>
     </table>
   </div>
+
+  </div><!-- end dashboard-content -->
 
   <!-- MODAL -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
@@ -281,11 +297,13 @@
     let currentUser = null;
     let userData = null;
 
-    // Wait for auth to be ready before redirecting
-    let authResolved = false;
     onAuthStateChanged(auth, async user => {
-      authResolved = true;
-      if (!user) { window.location.href = 'login.html'; return; }
+      if (!user) {
+        // Show login prompt instead of hard redirect
+        document.getElementById('not-logged-in').style.display = 'flex';
+        document.getElementById('dashboard-content').style.display = 'none';
+        return;
+      }
       currentUser = user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (!userDoc.exists() || !userDoc.data().robloxUsername) {
@@ -347,18 +365,25 @@
       }).join('');
     }
 
+    // Difficulty mapping from TowerStats badge names
+    const badgeToDiff = {
+      'Easy': 'Easy', 'Medium': 'Medium', 'Hard': 'Hard', 'Difficult': 'Difficult',
+      'Challenging': 'Challenging', 'Intense': 'Intense', 'Remorseless': 'Remorseless',
+      'Insane': 'Insane', 'Extreme': 'Extreme', 'Catastrophic': 'Catastrophic', 'Unreal': 'Unreal'
+    };
+
     window.syncBadges = async () => {
       const btn = document.getElementById('sync-btn');
       const msg = document.getElementById('sync-msg');
       btn.disabled = true;
       btn.innerHTML = '<span>⟳</span> Syncing...';
-      msg.textContent = 'Mengambil data badge dari TowerStats...';
+      msg.textContent = 'Mengambil Roblox ID...';
       msg.className = 'sync-msg info';
       msg.style.display = 'block';
 
       try {
-        // Get Roblox user ID first
-        const userRes = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+        // Step 1: Get Roblox user ID via proxy
+        const userRes = await fetch('/api/roblox', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usernames: [userData.robloxUsername], excludeBannedUsers: true })
@@ -367,25 +392,64 @@
         const robloxId = userJson.data?.[0]?.id;
 
         if (!robloxId) {
-          msg.textContent = 'Username Roblox tidak ditemukan. Cek kembali username kamu.';
+          msg.textContent = 'Username Roblox tidak ditemukan. Cek kembali di halaman Profile.';
           msg.className = 'sync-msg error';
           btn.disabled = false;
           btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
           return;
         }
 
-        // Get badges from TowerStats
+        msg.textContent = 'Mengambil data badge dari TowerStats...';
+
+        // Step 2: Get badges from TowerStats via proxy
         const badgeRes = await fetch('/api/towerstats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apiKey': TOWERSTATS_API_KEY },
           body: JSON.stringify({ id: robloxId, universe_id: UNIVERSE_ID })
         });
-
         const badgeData = await badgeRes.json();
-        msg.textContent = `Sync selesai! Ditemukan ${badgeData.badges?.length || 0} badge. Data telah diperbarui.`;
+        const badges = badgeData.badges || badgeData.data || [];
+
+        if (!badges.length) {
+          msg.textContent = 'Tidak ada badge ditemukan untuk akun ini di EToH.';
+          msg.className = 'sync-msg error';
+          btn.disabled = false;
+          btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
+          return;
+        }
+
+        // Step 3: Convert badges to completions
+        const existingNames = new Set((userData.completions || []).map(c => c.towerName.toLowerCase()));
+        const newCompletions = [];
+
+        badges.forEach(badge => {
+          const towerName = badge.name || badge.tower_name || badge.displayName || '';
+          const diff = badge.difficulty || badge.category || 'Unknown';
+          if (towerName && !existingNames.has(towerName.toLowerCase())) {
+            newCompletions.push({
+              towerName,
+              difficulty: diff,
+              completedAt: badge.earned_at || badge.earnedAt || new Date().toISOString(),
+              fromSync: true
+            });
+          }
+        });
+
+        // Step 4: Save to Firestore
+        if (newCompletions.length > 0) {
+          const allCompletions = [...(userData.completions || []), ...newCompletions];
+          await updateDoc(doc(db, 'users', currentUser.uid), { completions: allCompletions });
+          userData.completions = allCompletions;
+          renderDashboard();
+          msg.textContent = `Sync selesai! ${newCompletions.length} completion baru ditambahkan dari ${badges.length} badge.`;
+        } else {
+          msg.textContent = `Sync selesai! Semua ${badges.length} badge sudah tercatat, tidak ada yang baru.`;
+        }
         msg.className = 'sync-msg success';
+
       } catch(e) {
-        msg.textContent = 'Gagal sync. Mungkin ada masalah CORS. Coba tambahkan manual.';
+        console.error('Sync error:', e);
+        msg.textContent = 'Gagal sync: ' + e.message;
         msg.className = 'sync-msg error';
       }
 

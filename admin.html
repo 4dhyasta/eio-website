@@ -182,7 +182,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
@@ -234,16 +234,14 @@
         const sorted = [...completions].sort((a,b) => (diffOrder[b.difficulty]||0)-(diffOrder[a.difficulty]||0));
         const joined = u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('id-ID') : '—';
 
-        const rows = sorted.map((c, i) => {
-          const safeC = btoa(unescape(encodeURIComponent(JSON.stringify(c))));
-          return `<tr>
+        const rows = sorted.map((c, i) => `
+          <tr>
             <td>${i+1}</td>
             <td style="font-weight:600">${c.towerName}</td>
             <td><span class="diff-badge ${diffClass[c.difficulty]||'diff-default'}">${c.difficulty}</span></td>
             <td>${c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—'}</td>
-            <td><button class="btn-delete" onclick="deleteCompletion('${u.id}', '${safeC}')">Hapus</button></td>
-          </tr>`;
-        }).join('');
+            <td><button class="btn-delete" onclick="deleteCompletion('${u.id}', ${i})">Hapus</button></td>
+          </tr>`).join('');
 
         const emptyRow = completions.length === 0 ? '<tr><td colspan="5" style="color:#aaa;font-size:0.8rem;padding:1rem">Belum ada completion</td></tr>' : '';
 
@@ -336,13 +334,31 @@
       }
     };
 
-    window.deleteCompletion = async (uid, safeC) => {
+    window.deleteCompletion = async (uid, sortedIndex) => {
       if (!confirm('Hapus completion ini?')) return;
       try {
-        const c = JSON.parse(decodeURIComponent(escape(atob(safeC))));
-        await updateDoc(doc(db, 'users', uid), { completions: arrayRemove(c) });
+        // Fetch fresh data to avoid stale state
+        const freshDoc = await getDoc(doc(db, 'users', uid));
+        if (!freshDoc.exists()) { alert('User tidak ditemukan'); return; }
+        
+        const allCompletions = freshDoc.data().completions || [];
+        // Sort same way as rendered
+        const sorted = [...allCompletions].sort((a,b) => (diffOrder[b.difficulty]||0)-(diffOrder[a.difficulty]||0));
+        const toRemove = sorted[sortedIndex];
+        if (!toRemove) { alert('Completion tidak ditemukan'); return; }
+        
+        // Remove by filtering out the exact item
+        const newCompletions = allCompletions.filter(c => 
+          !(c.towerName === toRemove.towerName && 
+            c.difficulty === toRemove.difficulty && 
+            c.completedAt === toRemove.completedAt)
+        );
+        
+        await updateDoc(doc(db, 'users', uid), { completions: newCompletions });
+        
+        // Update local state
         const u = allUsers.find(u => u.id === uid);
-        if (u) u.completions = u.completions.filter(x => JSON.stringify(x) !== JSON.stringify(c));
+        if (u) u.completions = newCompletions;
         renderMembers();
       } catch(e) { alert('Gagal hapus: ' + e.message); }
     };

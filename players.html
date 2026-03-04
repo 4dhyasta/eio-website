@@ -200,6 +200,7 @@
       <li><a href="index.html" data-id="nav-home">Home</a></li>
       <li><a href="players.html" class="active">Players</a></li>
       <li><a href="obbys.html">Obby List</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="profile.html">Profile</a></li>
     </ul>
     <div class="nav-right"><div class="lang-toggle" style="margin-right:0.5rem">
@@ -317,7 +318,6 @@
         allPlayers.push({
           uid: doc.id,
           username: data.robloxUsername || '—',
-          email: data.email || '',
           completions,
           hardest,
           hardestOrder,
@@ -372,7 +372,6 @@
                 <div class="player-avatar">${initial}</div>
                 <div>
                   <div class="player-name">${p.username}</div>
-                  <div class="player-email">${p.email}</div>
                 </div>
               </div>
             </td>

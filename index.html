@@ -150,14 +150,17 @@
       <li><a href="#about" data-id="nav-about">Tentang</a></li>
       <li><a href="players.html" data-id="nav-players">Players</a></li>
       <li><a href="obbys.html" data-id="nav-obbys">Obby List</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
     </ul>
     <div class="nav-right">
       <div class="lang-toggle">
         <button class="lang-btn active" data-lang="id" onclick="setLang('id')">IDN</button>
         <button class="lang-btn" data-lang="en" onclick="setLang('en')">ENG</button>
       </div>
-      <a href="login.html" class="btn-outline" data-id="nav-login" data-keep-href="true">Login</a>
-      <a href="login.html?tab=register" class="btn-red" data-id="nav-register" data-keep-href="true">Daftar</a>
+      <a href="login.html" class="btn-outline" id="nav-login-btn" data-id="nav-login">Login</a>
+      <a href="login.html?tab=register" class="btn-red" id="nav-register-btn" data-id="nav-register">Daftar</a>
+      <a href="dashboard.html" class="btn-red" id="nav-dashboard-btn" style="display:none">Dashboard</a>
+      <button onclick="doLogout()" class="btn-outline" id="nav-logout-btn" style="display:none;cursor:pointer;border:1.5px solid #E2E2E2;padding:0.5rem 1.2rem;font-family:Inter,sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#1a1a1a;">Logout</button>
     </div>
   </nav>
 
@@ -312,5 +315,34 @@
 
   apply();
 </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
+      authDomain: "eio-website.firebaseapp.com",
+      projectId: "eio-website",
+      storageBucket: "eio-website.firebasestorage.app",
+      messagingSenderId: "1030038379623",
+      appId: "1:1030038379623:web:54d24cb244d6dc9ade48c2"
+    });
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        document.getElementById('nav-login-btn').style.display = 'none';
+        document.getElementById('nav-register-btn').style.display = 'none';
+        document.getElementById('nav-dashboard-btn').style.display = 'inline-block';
+        document.getElementById('nav-logout-btn').style.display = 'inline-block';
+      }
+    });
+
+    window.doLogout = async () => {
+      await signOut(auth);
+      window.location.reload();
+    };
+  </script>
 </body>
 </html>

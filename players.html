@@ -200,6 +200,7 @@
       <li><a href="index.html" data-id="nav-home">Home</a></li>
       <li><a href="players.html" class="active">Players</a></li>
       <li><a href="obbys.html">Obby List</a></li>
+      <li><a href="profile.html">Profile</a></li>
     </ul>
     <div class="nav-right"><div class="lang-toggle" style="margin-right:0.5rem">
         <button class="lang-btn" data-lang="id" onclick="setLang('id')">IDN</button>
@@ -257,7 +258,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
@@ -286,9 +287,11 @@
     let allPlayers = [];
     let currentSort = 'completions';
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async user => {
       if (user) {
-        document.getElementById('nav-user').textContent = user.email?.split('@')[0];
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const uname = userDoc.exists() ? (userDoc.data().displayName || userDoc.data().robloxUsername || user.email?.split('@')[0]) : user.email?.split('@')[0];
+        document.getElementById('nav-user').textContent = uname;
         document.getElementById('nav-login').style.display = 'none';
         document.getElementById('nav-logout').style.display = 'block';
       }

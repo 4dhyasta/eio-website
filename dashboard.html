@@ -145,11 +145,13 @@
       <li><a href="index.html" data-id="nav-home">Home</a></li>
       <li><a href="players.html" data-id="nav-players">Players</a></li>
       <li><a href="obbys.html" data-id="nav-obbys">Obby List</a></li>
+      <li><a href="profile.html">Profile</a></li>
     </ul>
     <div class="nav-right"><div class="lang-toggle" style="margin-right:0.5rem">
         <button class="lang-btn" data-lang="id" onclick="setLang('id')">IDN</button>
         <button class="lang-btn" data-lang="en" onclick="setLang('en')">ENG</button>
       </div>
+      <a href="profile.html" class="btn-sm" style="display:flex;align-items:center;gap:0.5rem" id="nav-profile-btn"><span id="nav-avatar-char">👤</span> Profile</a>
       <button class="btn-sm" onclick="doLogout()" data-id="nav-logout">Logout</button>
     </div>
   </nav>
@@ -301,7 +303,10 @@
 
     function renderDashboard() {
       const completions = userData.completions || [];
-      document.getElementById('welcome-title').textContent = `HEY, ${userData.robloxUsername?.toUpperCase()}!`;
+      document.getElementById('welcome-title').textContent = `HEY, ${(userData.displayName || userData.robloxUsername)?.toUpperCase()}!`;
+      // Show avatar in nav
+      const navChar = document.getElementById('nav-avatar-char');
+      if (navChar) navChar.textContent = (userData.displayName || userData.robloxUsername || '?')[0].toUpperCase();
       document.getElementById('stat-roblox').textContent = userData.robloxUsername;
       document.getElementById('stat-total').textContent = completions.length;
 

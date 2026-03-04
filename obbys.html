@@ -166,6 +166,7 @@
       <li><a href="index.html" data-id="nav-home">Home</a></li>
       <li><a href="players.html">Players</a></li>
       <li><a href="obbys.html" class="active">Obby List</a></li>
+      <li><a href="profile.html">Profile</a></li>
     </ul>
     <div class="nav-right"><div class="lang-toggle" style="margin-right:0.5rem">
         <button class="lang-btn" data-lang="id" onclick="setLang('id')">IDN</button>
@@ -290,7 +291,8 @@
     onAuthStateChanged(auth, async user => {
       if (user) {
         currentUser = user;
-        document.getElementById('nav-user').textContent = user.email?.split('@')[0];
+        const uDoc = await getDoc(doc(db, 'users', user.uid));
+        document.getElementById('nav-user').textContent = uDoc.exists() ? (uDoc.data().displayName || uDoc.data().robloxUsername || user.email?.split('@')[0]) : user.email?.split('@')[0];
         document.getElementById('nav-login').style.display = 'none';
         document.getElementById('nav-logout').style.display = 'block';
         document.getElementById('add-btn').style.display = 'block';

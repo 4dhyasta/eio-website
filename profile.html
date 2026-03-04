@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile — Elite Indonesian Obbyist</title>
+  <link rel="icon" type="image/png" href="eio-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #CE1126; --red-dark: #8B0000;
+      --white: #FFFFFF; --off-white: #F7F7F7;
+      --border: #E2E2E2; --text: #1a1a1a; --text-muted: #777;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 3px solid var(--red);
+    }
+    .nav-logo-wrap { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-img { width: 30px; height: 30px; object-fit: cover; border-radius: 4px; }
+    .nav-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: 3px; color: var(--text); }
+    .nav-logo span { color: var(--red); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-size: 0.7rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--red); }
+    .nav-right { display: flex; gap: 0.8rem; align-items: center; }
+    .lang-toggle { display: flex; border: 1.5px solid #E2E2E2; overflow: hidden; border-radius: 4px; }
+    .lang-btn { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.4rem 0.7rem; background: transparent; border: none; cursor: pointer; color: #777; transition: all 0.2s; }
+    .lang-btn.active { background: #CE1126; color: white; }
+    .btn-sm { font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 0.5rem 1rem; border: 1.5px solid var(--border); background: transparent; color: var(--text); cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+    .btn-sm:hover { border-color: var(--red); color: var(--red); }
+
+    .main { max-width: 700px; margin: 0 auto; padding: 4rem 3rem; }
+
+    .page-eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--red); margin-bottom: 0.5rem; }
+    .page-title { font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 2.5rem; }
+
+    /* PROFILE CARD */
+    .profile-card { background: white; border: 1px solid var(--border); border-top: 3px solid var(--red); padding: 2.5rem; margin-bottom: 1.5rem; }
+
+    .avatar-section { display: flex; align-items: center; gap: 2rem; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+    .avatar-wrap { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+    .avatar-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--red); background: var(--off-white); }
+    .avatar-default { width: 90px; height: 90px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: white; border: 3px solid var(--red); }
+    .avatar-upload-btn { position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; background: var(--red); border: 2px solid white; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: white; transition: background 0.2s; }
+    .avatar-upload-btn:hover { background: var(--red-dark); }
+    #avatar-input { display: none; }
+    .avatar-info h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .avatar-info p { font-size: 0.82rem; color: var(--text-muted); }
+    .avatar-info .admin-tag { display: inline-block; background: var(--red); color: white; font-size: 0.58rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px; margin-left: 0.5rem; vertical-align: middle; }
+
+    .form-group { margin-bottom: 1.5rem; }
+    .form-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; }
+    .form-input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--border); font-family: 'Inter', sans-serif; font-size: 0.95rem; outline: none; transition: border 0.2s; background: white; color: var(--text); }
+    .form-input:focus { border-color: var(--red); }
+    .form-input:disabled { background: var(--off-white); color: var(--text-muted); cursor: not-allowed; }
+
+    .form-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+    .msg { padding: 0.75rem 1rem; font-size: 0.82rem; margin-bottom: 1.2rem; border-radius: 2px; display: none; }
+    .msg.error { background: #fff0f0; color: var(--red); border: 1px solid #ffcccc; }
+    .msg.success { background: #f0fff4; color: #006b35; border: 1px solid #b3f0cc; }
+
+    .btn-save { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 1rem 2rem; background: var(--red); color: white; border: none; cursor: pointer; transition: background 0.2s; width: 100%; }
+    .btn-save:hover { background: var(--red-dark); }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    .danger-zone { background: white; border: 1px solid #ffcccc; border-top: 3px solid #cc0000; padding: 2rem; }
+    .danger-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #cc0000; margin-bottom: 0.5rem; }
+    .danger-text { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem; }
+    .btn-danger { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.7rem 1.5rem; background: transparent; color: #cc0000; border: 1.5px solid #cc0000; cursor: pointer; transition: all 0.2s; }
+    .btn-danger:hover { background: #cc0000; color: white; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .main { padding: 2rem 1.5rem; }
+      .avatar-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo-wrap">
+      <img src="eio-icon.png" alt="EIO" class="nav-logo-img">
+      <span class="nav-logo">EI<span>O</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="players.html">Players</a></li>
+      <li><a href="obbys.html">Obby List</a></li>
+      <li><a href="profile.html" class="active">Profile</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn" data-lang="id" onclick="setLang('id')">IDN</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">ENG</button>
+      </div>
+      <button class="btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <p class="page-eyebrow">Akun</p>
+    <h1 class="page-title">PROFILE</h1>
+
+    <div class="profile-card">
+      <!-- AVATAR -->
+      <div class="avatar-section">
+        <div class="avatar-wrap">
+          <div class="avatar-default" id="avatar-default">?</div>
+          <img class="avatar-img" id="avatar-img" style="display:none" src="" alt="Avatar">
+          <label class="avatar-upload-btn" for="avatar-input" title="Ganti foto">✎</label>
+          <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(event)">
+        </div>
+        <div class="avatar-info">
+          <h3 id="profile-username">—</h3>
+          <p id="profile-email">—</p>
+          <p id="profile-joined" style="margin-top:0.2rem">—</p>
+        </div>
+      </div>
+
+      <div class="msg" id="profile-msg"></div>
+
+      <!-- DISPLAY NAME -->
+      <div class="form-group">
+        <label class="form-label">Display Name</label>
+        <input type="text" class="form-input" id="input-displayname" placeholder="Nama yang ditampilkan di website">
+        <p class="form-hint">Nama ini yang akan muncul di Player List dan leaderboard.</p>
+      </div>
+
+      <!-- ROBLOX USERNAME -->
+      <div class="form-group">
+        <label class="form-label">Username Roblox</label>
+        <input type="text" class="form-input" id="input-roblox" placeholder="Username Roblox kamu">
+        <p class="form-hint">Ganti username Roblox jika ada perubahan. Pastikan username valid.</p>
+      </div>
+
+      <!-- EMAIL (readonly) -->
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="text" class="form-input" id="input-email" disabled>
+        <p class="form-hint">Email tidak bisa diubah.</p>
+      </div>
+
+      <button class="btn-save" id="save-btn" onclick="saveProfile()">Simpan Perubahan →</button>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="danger-zone">
+      <p class="danger-title">⚠ Danger Zone</p>
+      <p class="danger-text">Logout dari semua sesi aktif kamu.</p>
+      <button class="btn-danger" onclick="doLogout()">Logout Sekarang</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
+      authDomain: "eio-website.firebaseapp.com",
+      projectId: "eio-website",
+      storageBucket: "eio-website.firebasestorage.app",
+      messagingSenderId: "1030038379623",
+      appId: "1:1030038379623:web:54d24cb244d6dc9ade48c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUser = null;
+    let userData = null;
+    let pendingAvatarFile = null;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) { window.location.href = 'login.html'; return; }
+      userData = userDoc.data();
+      renderProfile();
+    });
+
+    function renderProfile() {
+      const displayName = userData.displayName || userData.robloxUsername || '—';
+      document.getElementById('profile-username').innerHTML = displayName + (userData.isAdmin ? ' <span class="admin-tag">Admin</span>' : '');
+      document.getElementById('profile-email').textContent = currentUser.email;
+      document.getElementById('profile-joined').textContent = 'Bergabung ' + (userData.joinedAt ? new Date(userData.joinedAt).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '—');
+      document.getElementById('input-displayname').value = userData.displayName || '';
+      document.getElementById('input-roblox').value = userData.robloxUsername || '';
+      document.getElementById('input-email').value = currentUser.email;
+
+      // Avatar
+      if (userData.avatarUrl) {
+        document.getElementById('avatar-default').style.display = 'none';
+        const img = document.getElementById('avatar-img');
+        img.src = userData.avatarUrl;
+        img.style.display = 'block';
+      } else {
+        document.getElementById('avatar-default').textContent = (userData.robloxUsername || '?')[0].toUpperCase();
+      }
+    }
+
+    window.previewAvatar = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        showMsg('Ukuran foto maksimal 2MB!', 'error');
+        return;
+      }
+      pendingAvatarFile = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('avatar-default').style.display = 'none';
+        const img = document.getElementById('avatar-img');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.saveProfile = async () => {
+      const displayName = document.getElementById('input-displayname').value.trim();
+      const robloxUsername = document.getElementById('input-roblox').value.trim();
+      const btn = document.getElementById('save-btn');
+
+      if (!robloxUsername) { showMsg('Username Roblox tidak boleh kosong!', 'error'); return; }
+
+      // Check duplicate roblox username (allow same user)
+      if (robloxUsername.toLowerCase() !== (userData.robloxUsername || '').toLowerCase()) {
+        const snap = await getDocs(collection(db, 'users'));
+        let taken = false;
+        snap.forEach(d => {
+          if (d.id !== currentUser.uid && d.data().robloxUsername?.toLowerCase() === robloxUsername.toLowerCase()) taken = true;
+        });
+        if (taken) { showMsg('Username Roblox ini sudah digunakan akun lain!', 'error'); return; }
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      try {
+        let avatarUrl = userData.avatarUrl || null;
+
+        // Upload avatar if changed
+        if (pendingAvatarFile) {
+          const storageRef = ref(storage, `avatars/${currentUser.uid}`);
+          await uploadBytes(storageRef, pendingAvatarFile);
+          avatarUrl = await getDownloadURL(storageRef);
+        }
+
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          displayName: displayName || robloxUsername,
+          robloxUsername,
+          avatarUrl
+        });
+
+        userData.displayName = displayName || robloxUsername;
+        userData.robloxUsername = robloxUsername;
+        userData.avatarUrl = avatarUrl;
+        pendingAvatarFile = null;
+
+        renderProfile();
+        showMsg('Profile berhasil disimpan!', 'success');
+      } catch(e) {
+        showMsg('Gagal menyimpan: ' + e.message, 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Simpan Perubahan →';
+    };
+
+    function showMsg(text, type) {
+      const el = document.getElementById('profile-msg');
+      el.textContent = text;
+      el.className = 'msg ' + type;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 4000);
+    }
+
+    window.doLogout = async () => { await signOut(auth); window.location.href = 'index.html'; };
+  </script>
+
+  <script>
+    window._pageT = {
+      id: { 'page-eyebrow': 'Akun', 'page-title': 'PROFILE' },
+      en: { 'page-eyebrow': 'Account', 'page-title': 'PROFILE' }
+    };
+    var _lang = localStorage.getItem('eio-lang') || 'id';
+    window.setLang = function(l) { _lang = l; localStorage.setItem('eio-lang', l); applyLang(); };
+    function applyLang() {
+      var t = window._pageT[_lang] || window._pageT['id'];
+      document.querySelectorAll('[data-id]').forEach(function(el) {
+        var key = el.getAttribute('data-id');
+        if (t[key]) el.innerHTML = t[key];
+      });
+      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === _lang);
+      });
+    }
+    applyLang();
+  </script>
+</body>
+</html>

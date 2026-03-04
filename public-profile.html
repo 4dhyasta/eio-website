@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile — Elite Indonesian Obbyist</title>
+  <link rel="icon" type="image/png" href="eio-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #CE1126; --red-dark: #8B0000;
+      --white: #FFFFFF; --off-white: #F7F7F7;
+      --border: #E2E2E2; --text: #1a1a1a; --text-muted: #777;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 3px solid var(--red);
+    }
+    .nav-logo-wrap { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-img { width: 30px; height: 30px; object-fit: cover; border-radius: 4px; }
+    .nav-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: 3px; color: var(--text); }
+    .nav-logo span { color: var(--red); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-size: 0.7rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--red); }
+    .nav-right { display: flex; gap: 0.8rem; align-items: center; }
+    .lang-toggle { display: flex; border: 1.5px solid #E2E2E2; overflow: hidden; border-radius: 4px; }
+    .lang-btn { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.4rem 0.7rem; background: transparent; border: none; cursor: pointer; color: #777; transition: all 0.2s; }
+    .lang-btn.active { background: #CE1126; color: white; }
+    .btn-sm { font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 0.5rem 1rem; border: 1.5px solid var(--border); background: transparent; color: var(--text); cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+    .btn-sm:hover { border-color: var(--red); color: var(--red); }
+
+    .main { max-width: 900px; margin: 0 auto; padding: 4rem 3rem; }
+
+    /* PROFILE HERO */
+    .profile-hero {
+      background: white; border: 1px solid var(--border);
+      border-top: 4px solid var(--red);
+      padding: 3rem; margin-bottom: 2rem;
+      display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;
+    }
+
+    .avatar-wrap { position: relative; flex-shrink: 0; }
+    .avatar-img {
+      width: 110px; height: 110px; border-radius: 50%;
+      object-fit: cover; border: 4px solid var(--red);
+      background: var(--off-white);
+    }
+    .avatar-default {
+      width: 110px; height: 110px; border-radius: 50%;
+      background: var(--red); display: flex; align-items: center;
+      justify-content: center; font-size: 2.5rem; font-weight: 900;
+      color: white; border: 4px solid var(--red);
+    }
+    .rank-badge {
+      position: absolute; bottom: 0; right: 0;
+      background: white; border: 2px solid var(--border);
+      border-radius: 20px; padding: 0.2rem 0.6rem;
+      font-size: 0.65rem; font-weight: 800; color: var(--text);
+      white-space: nowrap;
+    }
+    .rank-badge.rank-1 { background: #FFD700; border-color: #FFD700; color: #000; }
+    .rank-badge.rank-2 { background: #C0C0C0; border-color: #C0C0C0; color: #000; }
+    .rank-badge.rank-3 { background: #CD7F32; border-color: #CD7F32; color: #fff; }
+
+    .profile-info { flex: 1; min-width: 200px; }
+    .profile-name { font-size: 2rem; font-weight: 900; letter-spacing: 1px; line-height: 1.1; margin-bottom: 0.3rem; }
+    .profile-roblox { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .admin-tag { display: inline-block; background: var(--red); color: white; font-size: 0.58rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 2px; margin-left: 0.5rem; vertical-align: middle; }
+    .profile-joined { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* STATS ROW */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border: 1px solid var(--border); border-top: 3px solid var(--red); padding: 1.5rem; text-align: center; }
+    .stat-val { font-size: 2rem; font-weight: 900; }
+    .stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-top: 0.3rem; }
+
+    /* COMPLETIONS */
+    .section-title { font-size: 1.1rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 1.2rem; }
+    .comp-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); }
+    .comp-table th { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border); background: var(--off-white); }
+    .comp-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+    .comp-table tr:last-child td { border-bottom: none; }
+
+    .diff-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 2px; display: inline-block; }
+    .diff-unreal { background: rgba(120,0,200,0.15); color: #7800c8; border: 1px solid rgba(120,0,200,0.3); }
+    .diff-catastrophic { background: rgba(240,240,240,0.9); color: #1a1a1a; border: 1px solid #ccc; }
+    .diff-extreme { background: rgba(30,144,255,0.15); color: #1e90ff; border: 1px solid rgba(30,144,255,0.3); }
+    .diff-insane { background: rgba(0,80,220,0.15); color: #0050dc; border: 1px solid rgba(0,80,220,0.3); }
+    .diff-remorseless { background: rgba(255,20,147,0.15); color: #ff1493; border: 1px solid rgba(255,20,147,0.3); }
+    .diff-intense { background: rgba(30,30,30,0.85); color: #f0f0f0; border: 1px solid #444; }
+    .diff-challenging { background: rgba(160,20,20,0.15); color: #a01414; border: 1px solid rgba(160,20,20,0.3); }
+    .diff-difficult { background: rgba(255,120,0,0.15); color: #e06000; border: 1px solid rgba(255,120,0,0.3); }
+    .diff-hard { background: rgba(255,120,0,0.15); color: #e06000; border: 1px solid rgba(255,120,0,0.3); }
+    .diff-medium { background: rgba(220,180,0,0.15); color: #a07800; border: 1px solid rgba(220,180,0,0.3); }
+    .diff-easy { background: rgba(30,160,60,0.15); color: #1a9030; border: 1px solid rgba(30,160,60,0.3); }
+    .diff-default { background: var(--off-white, #f7f7f7); color: #777; border: 1px solid #ddd; }
+
+
+    .not-found { text-align: center; padding: 5rem 2rem; }
+    .not-found h2 { font-size: 2rem; font-weight: 900; margin-bottom: 1rem; }
+    .not-found p { color: var(--text-muted); margin-bottom: 2rem; }
+    .back-btn { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0.9rem 2rem; background: var(--red); color: white; text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .main { padding: 2rem 1.5rem; }
+      .profile-hero { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 2rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo-wrap">
+      <img src="eio-icon.png" alt="EIO" class="nav-logo-img">
+      <span class="nav-logo">EI<span>O</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="players.html">Players</a></li>
+      <li><a href="obbys.html">Obby List</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn" data-lang="id" onclick="setLang('id')">IDN</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">ENG</button>
+      </div>
+      <a href="players.html" class="btn-sm">← Kembali</a>
+    </div>
+  </nav>
+
+  <div class="main" id="main-content">
+    <div style="text-align:center;padding:5rem;color:var(--text-muted)">Memuat profil...</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
+      authDomain: "eio-website.firebaseapp.com",
+      projectId: "eio-website",
+      storageBucket: "eio-website.firebasestorage.app",
+      messagingSenderId: "1030038379623",
+      appId: "1:1030038379623:web:54d24cb244d6dc9ade48c2"
+    });
+    const db = getFirestore(app);
+
+    const diffOrder = {Unreal:11,Catastrophic:10,Extreme:9,Insane:8,Remorseless:7,Intense:6,Challenging:5,Difficult:4,Hard:3,Medium:2,Easy:1};
+    const diffClass = {Unreal:'diff-unreal',Catastrophic:'diff-catastrophic',Extreme:'diff-extreme',Insane:'diff-insane',Remorseless:'diff-remorseless',Intense:'diff-intense'};
+
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+
+    async function loadProfile() {
+      const main = document.getElementById('main-content');
+
+      if (!uid) {
+        renderNotFound(main);
+        return;
+      }
+
+      try {
+        // Load this user
+        const userDoc = await getDoc(doc(db, 'users', uid));
+        if (!userDoc.exists()) { renderNotFound(main); return; }
+        const data = userDoc.data();
+
+        // Load all users to calculate rank
+        const allSnap = await getDocs(collection(db, 'users'));
+        const allPlayers = [];
+        allSnap.forEach(d => {
+          const pd = d.data();
+          const completions = pd.completions || [];
+          let hardestOrder = -1;
+          completions.forEach(c => {
+            const o = diffOrder[c.difficulty] || 0;
+            if (o > hardestOrder) hardestOrder = o;
+          });
+          allPlayers.push({ uid: d.id, completions: completions.length, hardestOrder });
+        });
+
+        // Sort by completions (default leaderboard sort)
+        allPlayers.sort((a, b) => b.completions - a.completions);
+        const rank = allPlayers.findIndex(p => p.uid === uid) + 1;
+
+        // Get hardest completion
+        const completions = data.completions || [];
+        let hardest = null, hardestOrder = -1;
+        completions.forEach(c => {
+          const o = diffOrder[c.difficulty] || 0;
+          if (o > hardestOrder) { hardestOrder = o; hardest = c; }
+        });
+
+        const sorted = [...completions].sort((a, b) => (diffOrder[b.difficulty]||0) - (diffOrder[a.difficulty]||0));
+        const displayName = data.displayName || data.robloxUsername || '—';
+        const joined = data.joinedAt ? new Date(data.joinedAt).toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'}) : '—';
+
+        // Update page title
+        document.title = `${displayName} — EIO`;
+
+        // Rank badge styling
+        const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+        const rankLabel = rank === 1 ? '🥇 #1' : rank === 2 ? '🥈 #2' : rank === 3 ? '🥉 #3' : `#${rank}`;
+
+        // Avatar
+        const avatarHtml = data.avatarUrl
+          ? `<img class="avatar-img" src="${data.avatarUrl}" alt="${displayName}">`
+          : `<div class="avatar-default">${displayName[0]?.toUpperCase() || '?'}</div>`;
+
+        // Hardest
+        const hardestHtml = hardest
+          ? `<div style="font-size:1.2rem;font-weight:700;margin-top:0.3rem">${hardest.towerName}</div>
+             <span class="diff-badge ${diffClass[hardest.difficulty]||'diff-default'}" style="margin-top:0.4rem;display:inline-block">${hardest.difficulty}</span>`
+          : `<div style="font-size:1.1rem;font-weight:600;color:var(--text-muted)">—</div>`;
+
+        // Completions table
+        const rowsHtml = sorted.length > 0
+          ? sorted.map((c, i) => `
+            <tr>
+              <td style="color:var(--text-muted);font-size:0.8rem">${i+1}</td>
+              <td style="font-weight:600">${c.towerName}</td>
+              <td><span class="diff-badge ${diffClass[c.difficulty]||'diff-default'}">${c.difficulty}</span></td>
+              <td style="font-size:0.75rem;color:var(--text-muted)">${c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—'}</td>
+            </tr>`).join('')
+          : `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)">Belum ada completion</td></tr>`;
+
+        main.innerHTML = `
+          <div class="profile-hero">
+            <div class="avatar-wrap">
+              ${avatarHtml}
+              <div class="rank-badge ${rankClass}">${rankLabel}</div>
+            </div>
+            <div class="profile-info">
+              <div class="profile-name">
+                ${displayName}
+                ${data.isAdmin ? '<span class="admin-tag">Admin</span>' : ''}
+              </div>
+              ${data.robloxUsername && data.robloxUsername !== displayName
+                ? `<div class="profile-roblox">@${data.robloxUsername} di Roblox</div>`
+                : `<div class="profile-roblox">@${data.robloxUsername || '—'} di Roblox</div>`}
+              <div class="profile-joined">Bergabung sejak ${joined}</div>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-val">${rankLabel}</div>
+              <div class="stat-label">Top Player</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-val">${completions.length}</div>
+              <div class="stat-label">Total Completions</div>
+            </div>
+            <div class="stat-card">
+              ${hardestHtml}
+              <div class="stat-label" style="margin-top:0.5rem">Hardest Completion</div>
+            </div>
+          </div>
+
+          <h2 class="section-title">COMPLETION LIST</h2>
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Tower</th><th>Difficulty</th><th>Tanggal</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        `;
+
+      } catch(e) {
+        document.getElementById('main-content').innerHTML = `
+          <div class="not-found">
+            <h2>ERROR</h2>
+            <p>${e.message}</p>
+            <a href="players.html" class="back-btn">← Kembali ke Player List</a>
+          </div>`;
+      }
+    }
+
+    function renderNotFound(main) {
+      main.innerHTML = `
+        <div class="not-found">
+          <h2>PROFIL TIDAK DITEMUKAN</h2>
+          <p>Player ini tidak ada atau sudah dihapus.</p>
+          <a href="players.html" class="back-btn">← Kembali ke Player List</a>
+        </div>`;
+    }
+
+    loadProfile();
+  </script>
+
+  <script>
+    var _lang = localStorage.getItem('eio-lang') || 'id';
+    window.setLang = function(l) { _lang = l; localStorage.setItem('eio-lang', l); applyLang(); };
+    function applyLang() {
+      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === _lang);
+      });
+    }
+    applyLang();
+  </script>
+</body>
+</html>

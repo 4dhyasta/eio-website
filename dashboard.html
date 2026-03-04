@@ -369,103 +369,55 @@
       }).join('');
     }
 
-    // Difficulty mapping from TowerStats badge names
-    const badgeToDiff = {
-      'Easy': 'Easy', 'Medium': 'Medium', 'Hard': 'Hard', 'Difficult': 'Difficult',
-      'Challenging': 'Challenging', 'Intense': 'Intense', 'Remorseless': 'Remorseless',
-      'Insane': 'Insane', 'Extreme': 'Extreme', 'Catastrophic': 'Catastrophic', 'Unreal': 'Unreal'
-    };
-
     window.syncBadges = async () => {
       const btn = document.getElementById('sync-btn');
       const msg = document.getElementById('sync-msg');
       btn.disabled = true;
       btn.innerHTML = '<span>⟳</span> Syncing...';
-      msg.textContent = 'Mengambil Roblox ID...';
+      msg.textContent = 'Mengambil badge dari Roblox... (bisa 10-30 detik)';
       msg.className = 'sync-msg info';
       msg.style.display = 'block';
 
       try {
-        // Step 1: Get Roblox user ID via proxy
-        const userRes = await fetch('/api/roblox', {
+        const syncRes = await fetch('/api/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ usernames: [userData.robloxUsername], excludeBannedUsers: true })
+          body: JSON.stringify({ username: userData.robloxUsername })
         });
-        const userJson = await userRes.json();
-        const robloxId = userJson.data?.[0]?.id;
+        const syncData = await syncRes.json();
 
-        if (!robloxId) {
-          msg.textContent = 'Username Roblox tidak ditemukan. Cek kembali di halaman Profile.';
+        if (syncData.error) {
+          msg.textContent = 'Error: ' + syncData.error;
           msg.className = 'sync-msg error';
           btn.disabled = false;
           btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
           return;
         }
 
-        msg.textContent = 'Mengambil data badge dari TowerStats...';
-
-        // Step 2: Get badges from TowerStats via proxy
-        const badgeRes = await fetch('/api/towerstats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apiKey': TOWERSTATS_API_KEY },
-          body: JSON.stringify({ id: robloxId, universe_id: UNIVERSE_ID })
-        });
-        const badgeData = await badgeRes.json();
-        console.log('TowerStats raw response:', JSON.stringify(badgeData));
-
-        // Handle all possible response formats from TowerStats
-        let badges = [];
-        if (Array.isArray(badgeData)) badges = badgeData;
-        else if (Array.isArray(badgeData.badges)) badges = badgeData.badges;
-        else if (Array.isArray(badgeData.data)) badges = badgeData.data;
-        else if (Array.isArray(badgeData.results)) badges = badgeData.results;
-        else if (Array.isArray(badgeData.completions)) badges = badgeData.completions;
-        else {
-          // Show raw response so we can debug
-          msg.innerHTML = `Response dari TowerStats tidak dikenali.<br><small style="font-family:monospace;word-break:break-all">${JSON.stringify(badgeData).substring(0,300)}</small>`;
+        if (!syncData.completions?.length) {
+          msg.textContent = 'Tidak ada badge EToH ditemukan untuk akun ini.';
           msg.className = 'sync-msg error';
           btn.disabled = false;
           btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
           return;
         }
 
-        if (!badges.length) {
-          msg.textContent = 'Tidak ada badge ditemukan untuk akun ini di EToH.';
-          msg.className = 'sync-msg error';
-          btn.disabled = false;
-          btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
-          return;
-        }
-
-        // Step 3: Convert badges to completions
+        // Merge with existing, skip duplicates by badgeId or towerName
+        const existingBadgeIds = new Set((userData.completions || []).map(c => c.badgeId).filter(Boolean));
         const existingNames = new Set((userData.completions || []).map(c => c.towerName.toLowerCase()));
-        const newCompletions = [];
-        console.log('First badge sample:', JSON.stringify(badges[0]));
+        
+        const newCompletions = syncData.completions.filter(c => 
+          !existingBadgeIds.has(c.badgeId) && !existingNames.has(c.towerName.toLowerCase())
+        );
 
-        badges.forEach(badge => {
-          // Try all possible field names for tower name
-          const towerName = badge.name || badge.tower_name || badge.displayName || badge.towerName || badge.title || badge.badge_name || '';
-          const diff = badge.difficulty || badge.category || 'Unknown';
-          if (towerName && !existingNames.has(towerName.toLowerCase())) {
-            newCompletions.push({
-              towerName,
-              difficulty: diff,
-              completedAt: badge.earned_at || badge.earnedAt || new Date().toISOString(),
-              fromSync: true
-            });
-          }
-        });
-
-        // Step 4: Save to Firestore
         if (newCompletions.length > 0) {
           const allCompletions = [...(userData.completions || []), ...newCompletions];
           await updateDoc(doc(db, 'users', currentUser.uid), { completions: allCompletions });
           userData.completions = allCompletions;
           renderDashboard();
-          msg.textContent = `Sync selesai! ${newCompletions.length} completion baru ditambahkan dari ${badges.length} badge.`;
+          msg.textContent = `Sync selesai! ${newCompletions.length} completion baru dari ${syncData.total} badge EToH.`;
         } else {
-          msg.textContent = `Sync selesai! Semua ${badges.length} badge sudah tercatat, tidak ada yang baru.`;
+          msg.textContent = `Sync selesai! Semua ${syncData.total} badge sudah tercatat.`;
         }
         msg.className = 'sync-msg success';
 

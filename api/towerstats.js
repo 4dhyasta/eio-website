@@ -1,26 +1,37 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, apiKey');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-    const response = await fetch('https://api.towerstats.com/api/game_badges', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'apiKey': '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143'
-      },
-      body
-    });
-    const text = await response.text();
-    let data;
-    try { data = JSON.parse(text); } catch(e) { data = { raw: text }; }
-    res.status(200).json(data);
+    const { userid, action } = req.body;
+
+    if (action === 'user_data') {
+      // Step 1: Get badges owned by user
+      const r = await fetch('https://www.towerstats.com/api/user_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Referer': 'https://www.towerstats.com/' },
+        body: JSON.stringify({ userid })
+      });
+      const data = await r.json();
+      return res.status(200).json(data);
+    }
+
+    if (action === 'check_badge') {
+      // Step 2: Get tower names for owned badge IDs
+      const { badges } = req.body;
+      const r = await fetch('https://www.towerstats.com/api/check_badge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Referer': 'https://www.towerstats.com/' },
+        body: JSON.stringify({ userid, badges })
+      });
+      const data = await r.json();
+      return res.status(200).json(data);
+    }
+
+    res.status(400).json({ error: 'Unknown action' });
   } catch(e) {
-    res.status(500).json({ error: 'Failed to fetch from TowerStats: ' + e.message });
+    res.status(500).json({ error: e.message });
   }
 }

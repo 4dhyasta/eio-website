@@ -287,7 +287,7 @@
     const db = getFirestore(app);
 
     const TOWERSTATS_API_KEY = '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143';
-    const UNIVERSE_ID = 8562822414;
+    const UNIVERSE_ID = 3264581003;
 
     const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Horrific':10,'Unreal':11};
 
@@ -412,7 +412,23 @@
           body: JSON.stringify({ id: robloxId, universe_id: UNIVERSE_ID })
         });
         const badgeData = await badgeRes.json();
-        const badges = badgeData.badges || badgeData.data || [];
+        console.log('TowerStats raw response:', JSON.stringify(badgeData));
+
+        // Handle all possible response formats from TowerStats
+        let badges = [];
+        if (Array.isArray(badgeData)) badges = badgeData;
+        else if (Array.isArray(badgeData.badges)) badges = badgeData.badges;
+        else if (Array.isArray(badgeData.data)) badges = badgeData.data;
+        else if (Array.isArray(badgeData.results)) badges = badgeData.results;
+        else if (Array.isArray(badgeData.completions)) badges = badgeData.completions;
+        else {
+          // Show raw response so we can debug
+          msg.innerHTML = `Response dari TowerStats tidak dikenali.<br><small style="font-family:monospace;word-break:break-all">${JSON.stringify(badgeData).substring(0,300)}</small>`;
+          msg.className = 'sync-msg error';
+          btn.disabled = false;
+          btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
+          return;
+        }
 
         if (!badges.length) {
           msg.textContent = 'Tidak ada badge ditemukan untuk akun ini di EToH.';
@@ -425,9 +441,11 @@
         // Step 3: Convert badges to completions
         const existingNames = new Set((userData.completions || []).map(c => c.towerName.toLowerCase()));
         const newCompletions = [];
+        console.log('First badge sample:', JSON.stringify(badges[0]));
 
         badges.forEach(badge => {
-          const towerName = badge.name || badge.tower_name || badge.displayName || '';
+          // Try all possible field names for tower name
+          const towerName = badge.name || badge.tower_name || badge.displayName || badge.towerName || badge.title || badge.badge_name || '';
           const diff = badge.difficulty || badge.category || 'Unknown';
           if (towerName && !existingNames.has(towerName.toLowerCase())) {
             newCompletions.push({

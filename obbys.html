@@ -145,7 +145,7 @@
     }
 
     .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .tower-icon { width: 40px; height: 40px; background: var(--off-white); border: 1px solid rgba(206,17,38,0.2); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: var(--red); flex-shrink: 0; border-radius: 4px; }
+    .tower-icon { width: 40px; height: 40px; background: #ddd; border: 1px solid rgba(206,17,38,0.2); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #fff; flex-shrink: 0; border-radius: 4px; }
     .player-tag { font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.55rem; background: var(--off-white, #f7f7f7); border: 1px solid var(--border, #E2E2E2); color: var(--text); border-radius: 2px; }
     .player-tag-more { background: rgba(206,17,38,0.08); border-color: rgba(206,17,38,0.2); color: var(--red); }
 
@@ -351,6 +351,13 @@
       tbody.innerHTML = filtered.map((o, i) => {
         const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
         const dClass = diffClass[o.difficulty] || 'diff-default';
+        const iconColors = {
+          'Unreal':'#3c0080','Horrific':'#aa00ff','Catastrophic':'#1a1a1a',
+          'Extreme':'#1e90ff','Insane':'#0050dc','Remorseless':'#ff1493',
+          'Intense':'#222222','Challenging':'#a01414','Difficult':'#e06000',
+          'Hard':'#e06000','Medium':'#a07800','Easy':'#1a9030'
+        };
+        const iconBg = iconColors[o.difficulty] || '#888';
         const shownPlayers = o.players.slice(0, 5);
         const extra = o.players.length - 5;
         return `
@@ -358,7 +365,7 @@
             <td class="rank-cell ${rankClass}">${i + 1}</td>
             <td>
               <div class="player-info">
-                <div class="tower-icon">${o.towerName.charAt(0).toUpperCase()}</div>
+                <div class="tower-icon" style="background:${iconBg};border-color:${iconBg};">${o.towerName.charAt(0).toUpperCase()}</div>
                 <div class="player-name">${o.towerName}</div>
               </div>
             </td>
@@ -369,7 +376,6 @@
                 ${extra > 0 ? `<span class="player-tag player-tag-more">+${extra} lagi</span>` : ''}
               </div>
             </td>
-            <td><span class="completion-count">${o.players.length}</span></td>
           </tr>`;
       }).join('');
     };

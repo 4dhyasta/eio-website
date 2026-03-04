@@ -203,7 +203,10 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const diffOrder = {Unreal:11,Catastrophic:10,Extreme:9,Insane:8,Remorseless:7,Intense:6,Challenging:5,Difficult:4,Hard:3,Medium:2,Easy:1};
+    const diffOrder = {
+      'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,
+      'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Unreal':10
+    };
     const diffClass = {Unreal:'diff-unreal',Catastrophic:'diff-catastrophic',Extreme:'diff-extreme',Insane:'diff-insane',Remorseless:'diff-remorseless',Intense:'diff-intense'};
 
     let currentUser = null;

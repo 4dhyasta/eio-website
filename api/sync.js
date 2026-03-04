@@ -1,3 +1,5 @@
+import { TOWER_DB, TOWER_NAME_DB } from './towerdb.js';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -18,67 +20,41 @@ export default async function handler(req, res) {
     const userId = userJson.data?.[0]?.id;
     if (!userId) return res.status(404).json({ error: 'Roblox user not found' });
 
-    // Step 2: Get ALL badges from EToH universe (paginated)
-    let allGameBadges = [];
-    let cursor = '';
-    do {
-      const url = `https://badges.roblox.com/v1/universes/${ETOH_UNIVERSE_ID}/badges?limit=100&sortOrder=Asc${cursor ? '&cursor=' + cursor : ''}`;
-      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      const data = await r.json();
-      if (data.data) allGameBadges = allGameBadges.concat(data.data);
-      cursor = data.nextPageCursor || '';
-      if (allGameBadges.length > 5000) break;
-    } while (cursor);
+    // Step 2: Get all EToH badge IDs from our database
+    const allBadgeIds = Object.keys(TOWER_DB).map(Number);
 
-    if (allGameBadges.length === 0) {
-      return res.status(500).json({ error: 'Could not fetch EToH badges', universeId: ETOH_UNIVERSE_ID });
-    }
-
-    // Step 3: Check which of these badges the user owns
-    // Roblox allows checking 100 badge IDs at a time
-    const badgeIds = allGameBadges.map(b => b.id);
+    // Step 3: Check which badges user owns (100 at a time)
     const ownedBadgeIds = new Set();
-
-    for (let i = 0; i < badgeIds.length; i += 100) {
-      const chunk = badgeIds.slice(i, i + 100).join(',');
+    for (let i = 0; i < allBadgeIds.length; i += 100) {
+      const chunk = allBadgeIds.slice(i, i + 100).join(',');
       const r = await fetch(
         `https://badges.roblox.com/v1/users/${userId}/badges/awarded-dates?badgeIds=${chunk}`,
         { headers: { 'Accept': 'application/json' } }
       );
       const data = await r.json();
-      if (data.data) {
-        data.data.forEach(b => ownedBadgeIds.add(b.badgeId));
-      }
+      if (data.data) data.data.forEach(b => ownedBadgeIds.add(b.badgeId));
     }
 
-    // Step 4: Filter game badges to only owned ones, then map to completions
-    const diffKeywords = ['Unreal','Horrific','Catastrophic','Extreme','Insane',
-      'Remorseless','Intense','Challenging','Difficult','Hard','Medium','Easy'];
-
-    const badgeMap = {};
-    allGameBadges.forEach(b => { badgeMap[b.id] = b; });
-
-    const completions = [...ownedBadgeIds].map(badgeId => {
-      const b = badgeMap[badgeId];
-      if (!b) return null;
-      let name = b.displayName || b.name || '';
-
-      // Remove "Beat the " or "Beat " prefix (case insensitive)
-      name = name.replace(/^beat\s+the\s+/i, '').replace(/^beat\s+/i, '').trim();
-
-      // Skip if name is empty or looks like a non-tower badge (no "Tower" or "ToX" pattern)
-      if (!name) return null;
-      const lowerName = name.toLowerCase();
-      const isTower = lowerName.includes('tower') || /^to[a-z]{1,3}\b/i.test(name);
-      if (!isTower) return null;
-
-      let difficulty = 'Unknown';
-      const searchIn = (b.description || '') + ' ' + (b.displayName || '') + ' ' + (b.name || '');
-      for (const d of diffKeywords) {
-        if (searchIn.toLowerCase().includes(d.toLowerCase())) { difficulty = d; break; }
-      }
-      return { towerName: name, difficulty, completedAt: new Date().toISOString(), badgeId };
-    }).filter(Boolean);
+    // Step 4: Map owned badges to completions using our database
+    const VALID_PREFIXES = ['tower of', 'steeple of', 'citadel of'];
+    const seen = new Set();
+    const completions = [];
+    for (const badgeId of ownedBadgeIds) {
+      const tower = TOWER_DB[badgeId];
+      if (!tower) continue;
+      // Only include actual tower/steeple/citadel badges
+      const nameLower = tower.name.toLowerCase();
+      if (!VALID_PREFIXES.some(p => nameLower.startsWith(p))) continue;
+      // Deduplicate by tower name (same tower may have 2 badge IDs)
+      if (seen.has(nameLower)) continue;
+      seen.add(nameLower);
+      completions.push({
+        towerName: tower.name,
+        difficulty: tower.difficulty,
+        completedAt: new Date().toISOString(),
+        badgeId
+      });
+    }
 
     res.status(200).json({ userId, total: completions.length, completions });
 

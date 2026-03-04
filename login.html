@@ -434,10 +434,12 @@
     const provider = new GoogleAuthProvider();
 
     let currentUser = null;
+    let isSavingRoblox = false;
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
+        if (isSavingRoblox) return; // Don't redirect while saving roblox username
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists() && userDoc.data().robloxUsername) {
           window.location.href = 'dashboard.html';
@@ -517,6 +519,7 @@
         errEl.style.display = 'block';
         return;
       }
+      isSavingRoblox = true;
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
       try {

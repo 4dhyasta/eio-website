@@ -281,7 +281,10 @@
     let currentUser = null;
     let userData = null;
 
+    // Wait for auth to be ready before redirecting
+    let authResolved = false;
     onAuthStateChanged(auth, async user => {
+      authResolved = true;
       if (!user) { window.location.href = 'login.html'; return; }
       currentUser = user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));

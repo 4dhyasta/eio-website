@@ -120,7 +120,7 @@
         <div class="avatar-wrap">
           <div class="avatar-default" id="avatar-default">?</div>
           <img class="avatar-img" id="avatar-img" style="display:none" src="" alt="Avatar">
-          <label class="avatar-upload-btn" for="avatar-input" title="Ganti foto">✎</label>
+          <label class="avatar-upload-btn" for="avatar-input" title="Ganti foto (max 500KB)">✎</label>
           <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(event)">
         </div>
         <div class="avatar-info">
@@ -168,7 +168,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
@@ -182,7 +181,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     let currentUser = null;
     let userData = null;
@@ -220,8 +218,8 @@
     window.previewAvatar = (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      if (file.size > 2 * 1024 * 1024) {
-        showMsg('Ukuran foto maksimal 2MB!', 'error');
+      if (file.size > 500 * 1024) {
+        showMsg('Ukuran foto maksimal 500KB!', 'error');
         return;
       }
       pendingAvatarFile = file;
@@ -258,11 +256,13 @@
       try {
         let avatarUrl = userData.avatarUrl || null;
 
-        // Upload avatar if changed
+        // Convert avatar to base64 and save in Firestore
         if (pendingAvatarFile) {
-          const storageRef = ref(storage, `avatars/${currentUser.uid}`);
-          await uploadBytes(storageRef, pendingAvatarFile);
-          avatarUrl = await getDownloadURL(storageRef);
+          avatarUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(pendingAvatarFile);
+          });
         }
 
         await updateDoc(doc(db, 'users', currentUser.uid), {

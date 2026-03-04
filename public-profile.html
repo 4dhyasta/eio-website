@@ -89,7 +89,7 @@
     .comp-table tr:last-child td { border-bottom: none; }
 
     .diff-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 2px; display: inline-block; }
-    .diff-unreal { background: rgba(120,0,200,0.15); color: #7800c8; border: 1px solid rgba(120,0,200,0.3); }
+    .diff-unreal { background: rgba(60,0,120,0.2); color: #3c0080; border: 1px solid rgba(60,0,120,0.4); }
     .diff-catastrophic { background: rgba(240,240,240,0.9); color: #1a1a1a; border: 1px solid #ccc; }
     .diff-extreme { background: rgba(30,144,255,0.15); color: #1e90ff; border: 1px solid rgba(30,144,255,0.3); }
     .diff-insane { background: rgba(0,80,220,0.15); color: #0050dc; border: 1px solid rgba(0,80,220,0.3); }
@@ -157,11 +157,13 @@
     });
     const db = getFirestore(app);
 
-    const diffOrder = {
-      'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,
-      'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Unreal':10
+    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Horrific':10,'Unreal':11};
+    const diffClass = {
+      'Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
+      'Extreme':'diff-extreme','Insane':'diff-insane','Remorseless':'diff-remorseless',
+      'Intense':'diff-intense','Challenging':'diff-challenging','Difficult':'diff-difficult',
+      'Hard':'diff-hard','Medium':'diff-medium','Easy':'diff-easy'
     };
-    const diffClass = {Unreal:'diff-unreal',Catastrophic:'diff-catastrophic',Extreme:'diff-extreme',Insane:'diff-insane',Remorseless:'diff-remorseless',Intense:'diff-intense'};
 
     const params = new URLSearchParams(window.location.search);
     const uid = params.get('uid');

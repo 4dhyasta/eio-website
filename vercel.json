@@ -1,5 +1,9 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/roblox.js": { "maxDuration": 10 },
+    "api/towerstats.js": { "maxDuration": 10 }
+  }
 }

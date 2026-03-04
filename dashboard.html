@@ -89,7 +89,7 @@
     .completions-table td { padding: 1rem; font-size: 0.9rem; }
 
     .diff-badge { font-family: 'Inter', sans-serif; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 2px; }
-    .diff-unreal { background: rgba(120,0,200,0.15); color: #7800c8; border: 1px solid rgba(120,0,200,0.3); }
+    .diff-unreal { background: rgba(60,0,120,0.2); color: #3c0080; border: 1px solid rgba(60,0,120,0.4); }
     .diff-catastrophic { background: rgba(240,240,240,0.9); color: #1a1a1a; border: 1px solid #ccc; }
     .diff-extreme { background: rgba(30,144,255,0.15); color: #1e90ff; border: 1px solid rgba(30,144,255,0.3); }
     .diff-insane { background: rgba(0,80,220,0.15); color: #0050dc; border: 1px solid rgba(0,80,220,0.3); }
@@ -243,6 +243,8 @@
         <label class="form-label">Difficulty</label>
         <select class="form-select" id="tower-diff">
           <option value="">Pilih difficulty...</option>
+          <option value="Unreal">Unreal</option>
+          <option value="Horrific">Horrific</option>
           <option value="Catastrophic">Catastrophic</option>
           <option value="Extreme">Extreme</option>
           <option value="Insane">Insane</option>
@@ -287,16 +289,13 @@
     const TOWERSTATS_API_KEY = '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143';
     const UNIVERSE_ID = 8562822414;
 
-    const diffOrder = {
-      'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,
-      'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Unreal':10
-    };
+    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Horrific':10,'Unreal':11};
 
     const diffClass = {
-      'Catastrophic': 'diff-catastrophic', 'Extreme': 'diff-extreme',
-      'Insane': 'diff-insane', 'Remorseless': 'diff-remorseless',
-      'Intense': 'diff-intense', 'Challenging': 'diff-challenging',
-      'Difficult': 'diff-difficult'
+      'Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
+      'Extreme':'diff-extreme','Insane':'diff-insane','Remorseless':'diff-remorseless',
+      'Intense':'diff-intense','Challenging':'diff-challenging','Difficult':'diff-difficult',
+      'Hard':'diff-hard','Medium':'diff-medium','Easy':'diff-easy'
     };
 
     let currentUser = null;

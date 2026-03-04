@@ -137,10 +137,10 @@
 
     .player-avatar {
       width: 40px; height: 40px;
-      background: var(--dark3);
+      background: #ddd;
       border: 1px solid rgba(206,17,38,0.3);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.1rem; color: var(--red);
+      font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.1rem; color: #fff;
       flex-shrink: 0; overflow: hidden;
     }
 
@@ -235,8 +235,7 @@
     <div class="table-meta">
       <span class="table-count" id="table-count"><span data-static="Memuat...|Loading...">Memuat...</span></span>
       <div class="sort-btns">
-        <button class="sort-btn active" onclick="sortBy('completions')" data-id="sort-completions">Completions</button>
-        <button class="sort-btn" onclick="sortBy('difficulty')" data-id="sort-difficulty">Difficulty</button>
+        <button class="sort-btn active" onclick="sortBy('difficulty')" data-id="sort-difficulty">Difficulty</button>
         <button class="sort-btn" onclick="sortBy('name')" data-id="sort-name">Nama</button>
       </div>
     </div>
@@ -289,7 +288,7 @@
     };
 
     let allPlayers = [];
-    let currentSort = 'completions';
+    let currentSort = 'difficulty';
 
     onAuthStateChanged(auth, async user => {
       if (user) {
@@ -345,9 +344,7 @@
       const query = document.getElementById('search-input').value.toLowerCase();
       let filtered = allPlayers.filter(p => p.username.toLowerCase().includes(query));
 
-      if (currentSort === 'completions') {
-        filtered.sort((a, b) => b.completions.length - a.completions.length);
-      } else if (currentSort === 'difficulty') {
+      if (currentSort === 'difficulty') {
         filtered.sort((a, b) => b.hardestOrder - a.hardestOrder);
       } else {
         filtered.sort((a, b) => a.username.localeCompare(b.username));
@@ -369,15 +366,25 @@
         const hardestDiff = p.hardest ? p.hardest.difficulty : null;
         const dClass = hardestDiff ? (diffClass[hardestDiff] || 'diff-default') : 'diff-default';
 
+        const iconColors = {
+          'Unreal':'#3c0080','Horrific':'#aa00ff','Catastrophic':'#1a1a1a',
+          'Extreme':'#1e90ff','Insane':'#0050dc','Remorseless':'#ff1493',
+          'Intense':'#222222','Challenging':'#a01414','Difficult':'#e06000',
+          'Hard':'#e06000','Medium':'#a07800','Easy':'#1a9030'
+        };
+        const iconBg = hardestDiff ? (iconColors[hardestDiff] || '#777') : '#ddd';
         const avatarHtml = p.avatarUrl
           ? `<img src="${p.avatarUrl}" alt="${p.username}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-          : initial;
+          : `<span style="color:#fff">${initial}</span>`;
+        const avatarStyle = p.avatarUrl
+          ? `border-radius:50%;overflow:hidden;`
+          : `border-radius:50%;overflow:hidden;background:${iconBg};border-color:${iconBg};color:#fff;`;
         return `
           <tr onclick="viewProfile('${p.uid}')" style="cursor:pointer;">
             <td class="rank-cell ${rankClass}">${i + 1}</td>
             <td>
               <div class="player-info">
-                <div class="player-avatar" style="border-radius:50%;overflow:hidden;">${avatarHtml}</div>
+                <div class="player-avatar" style="${avatarStyle}">${avatarHtml}</div>
                 <div>
                   <div class="player-name">${p.displayName}</div>
                   ${p.displayName !== p.username ? `<div style="font-size:0.65rem;color:var(--text-muted);margin-top:0.1rem">${p.username}</div>` : ''}

@@ -61,6 +61,7 @@
     .diff-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px; display: inline-block; }
     .diff-unreal { background: rgba(60,0,120,0.2); color: #3c0080; border: 1px solid rgba(60,0,120,0.4); }
     .diff-catastrophic { background: rgba(240,240,240,0.9); color: #1a1a1a; border: 1px solid #ccc; }
+    .diff-terrifying { background: rgba(0,200,200,0.15); color: #00c8c8; border: 1px solid rgba(0,200,200,0.3); }
     .diff-extreme { background: rgba(30,144,255,0.15); color: #1e90ff; border: 1px solid rgba(30,144,255,0.3); }
     .diff-insane { background: rgba(0,80,220,0.15); color: #0050dc; border: 1px solid rgba(0,80,220,0.3); }
     .diff-remorseless { background: rgba(255,20,147,0.15); color: #ff1493; border: 1px solid rgba(255,20,147,0.3); }
@@ -167,6 +168,7 @@
           <option value=""><span data-static="Pilih difficulty...|Select difficulty...">Pilih difficulty...</span></option>
           <option>Unreal</option>
           <option>Catastrophic</option>
+          <option>Terrifying</option>
           <option>Extreme</option>
           <option>Insane</option>
           <option>Remorseless</option>
@@ -203,10 +205,10 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Challenging':4,'Intense':5,'Remorseless':6,'Insane':7,'Extreme':8,'Catastrophic':9,'Horrific':10,'Unreal':11};
+    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13};
     const diffClass = {
       'Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
-      'Extreme':'diff-extreme','Insane':'diff-insane','Remorseless':'diff-remorseless',
+      'Terrifying':'diff-terrifying','Extreme':'diff-extreme','Insane':'diff-insane','Remorseless':'diff-remorseless',
       'Intense':'diff-intense','Challenging':'diff-challenging','Difficult':'diff-difficult',
       'Hard':'diff-hard','Medium':'diff-medium','Easy':'diff-easy'
     };

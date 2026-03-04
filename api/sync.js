@@ -62,8 +62,18 @@ export default async function handler(req, res) {
       const b = badgeMap[badgeId];
       if (!b) return null;
       let name = b.displayName || b.name || '';
+
+      // Remove "Beat the " or "Beat " prefix (case insensitive)
+      name = name.replace(/^beat\s+the\s+/i, '').replace(/^beat\s+/i, '').trim();
+
+      // Skip if name is empty or looks like a non-tower badge (no "Tower" or "ToX" pattern)
+      if (!name) return null;
+      const lowerName = name.toLowerCase();
+      const isTower = lowerName.includes('tower') || /^to[a-z]{1,3}\b/i.test(name);
+      if (!isTower) return null;
+
       let difficulty = 'Unknown';
-      const searchIn = (b.description || '') + ' ' + name;
+      const searchIn = (b.description || '') + ' ' + (b.displayName || '') + ' ' + (b.name || '');
       for (const d of diffKeywords) {
         if (searchIn.toLowerCase().includes(d.toLowerCase())) { difficulty = d; break; }
       }

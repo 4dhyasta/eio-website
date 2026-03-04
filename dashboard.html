@@ -358,7 +358,7 @@
         }
 
         // Get badges from TowerStats
-        const badgeRes = await fetch('https://api.towerstats.com/api/game_badges', {
+        const badgeRes = await fetch('/api/towerstats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apiKey': TOWERSTATS_API_KEY },
           body: JSON.stringify({ id: robloxId, universe_id: UNIVERSE_ID })

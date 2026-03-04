@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Elite Indonesian Obbyist</title>
+  <link rel="icon" type="image/png" href="eio-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #CE1126; --red-dark: #8B0000;
+      --white: #FFFFFF; --off-white: #F7F7F7;
+      --border: #E2E2E2; --text: #1a1a1a; --text-muted: #777;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 3px solid var(--red);
+    }
+    .nav-logo-wrap { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-img { width: 30px; height: 30px; object-fit: cover; border-radius: 4px; }
+    .nav-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: 3px; color: var(--text); }
+    .nav-logo span { color: var(--red); }
+    .nav-right { display: flex; gap: 0.8rem; align-items: center; }
+    .admin-badge { background: var(--red); color: white; font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 0.3rem 0.7rem; border-radius: 3px; }
+    .btn-sm { font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 0.5rem 1rem; border: 1.5px solid var(--border); background: transparent; color: var(--text); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-sm:hover { border-color: var(--red); color: var(--red); }
+    .btn-red { background: var(--red); color: white; border-color: var(--red); }
+    .btn-red:hover { background: var(--red-dark); border-color: var(--red-dark); color: white; }
+
+    .main { max-width: 1200px; margin: 0 auto; padding: 3rem; }
+
+    .page-header { margin-bottom: 2.5rem; }
+    .page-eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--red); margin-bottom: 0.5rem; }
+    .page-title { font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 2rem; }
+    .tab-btn { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 0.9rem 1.8rem; background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; color: var(--text-muted); transition: all 0.2s; margin-bottom: -2px; }
+    .tab-btn.active { color: var(--red); border-bottom-color: var(--red); }
+
+    /* CARDS */
+    .card { background: white; border: 1px solid var(--border); border-top: 3px solid var(--red); padding: 1.5rem; margin-bottom: 1rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .card-name { font-size: 1.05rem; font-weight: 700; }
+    .card-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    /* COMPLETIONS TABLE inside card */
+    .comp-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .comp-table th { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 0.5rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
+    .comp-table td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+    .comp-table tr:last-child td { border-bottom: none; }
+
+    /* DIFF BADGES */
+    .diff-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px; display: inline-block; }
+    .diff-unreal { background: rgba(255,0,100,0.1); color: #cc0055; }
+    .diff-catastrophic { background: rgba(206,17,38,0.1); color: var(--red); }
+    .diff-extreme { background: rgba(200,80,0,0.1); color: #c05000; }
+    .diff-insane { background: rgba(120,0,180,0.1); color: #7000aa; }
+    .diff-remorseless { background: rgba(0,70,190,0.1); color: #0044bb; }
+    .diff-intense { background: rgba(0,140,100,0.1); color: #007a55; }
+    .diff-default { background: var(--off-white); color: var(--text-muted); }
+
+    /* BUTTONS */
+    .btn-delete { font-size: 0.65rem; font-weight: 700; padding: 0.3rem 0.7rem; background: transparent; border: 1px solid #ffcccc; color: #cc0000; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+    .btn-delete:hover { background: #cc0000; color: white; }
+    .btn-add-comp { font-size: 0.65rem; font-weight: 700; padding: 0.35rem 0.8rem; background: var(--red); border: none; color: white; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+    .btn-add-comp:hover { background: var(--red-dark); }
+    .btn-toggle-admin { font-size: 0.65rem; font-weight: 700; padding: 0.35rem 0.8rem; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+    .btn-toggle-admin:hover { border-color: var(--text); color: var(--text); }
+    .btn-toggle-admin.is-admin { border-color: var(--red); color: var(--red); background: rgba(206,17,38,0.05); }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; padding: 2.5rem; width: 100%; max-width: 440px; border-top: 4px solid var(--red); }
+    .modal-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.3rem; }
+    .modal-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; }
+    .form-input, .form-select { width: 100%; padding: 0.8rem 1rem; border: 1.5px solid var(--border); font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; transition: border 0.2s; background: white; }
+    .form-input:focus, .form-select:focus { border-color: var(--red); }
+    .modal-actions { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+    .modal-msg { padding: 0.7rem 1rem; font-size: 0.82rem; margin-bottom: 1rem; border-radius: 2px; display: none; }
+    .modal-msg.error { background: #fff0f0; color: var(--red); border: 1px solid #ffcccc; }
+    .modal-msg.success { background: #f0fff4; color: #006b35; border: 1px solid #b3f0cc; }
+
+    .loading { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.9rem; }
+    .empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .main { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo-wrap">
+      <img src="eio-icon.png" alt="EIO" class="nav-logo-img">
+      <span class="nav-logo">EI<span>O</span></span>
+    </a>
+    <div class="nav-right">
+      <span class="admin-badge">⚡ Admin</span>
+      <a href="dashboard.html" class="btn-sm">Dashboard</a>
+      <button class="btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="page-header">
+      <p class="page-eyebrow">Admin Panel</p>
+      <h1 class="page-title">MANAGE COMMUNITY</h1>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('members')">Members</button>
+      <button class="tab-btn" onclick="switchTab('admins')">Admin Management</button>
+    </div>
+
+    <!-- MEMBERS TAB -->
+    <div id="tab-members">
+      <div id="members-list"><div class="loading">Memuat data members...</div></div>
+    </div>
+
+    <!-- ADMINS TAB -->
+    <div id="tab-admins" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">Admin Accounts</div>
+            <div class="card-meta">Akun dengan akses admin panel</div>
+          </div>
+        </div>
+        <div id="admins-list"><div class="loading">Memuat...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD COMPLETION MODAL -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <h2 class="modal-title">TAMBAH COMPLETION</h2>
+      <p class="modal-sub" id="modal-target-name">untuk —</p>
+      <div class="modal-msg" id="modal-msg"></div>
+      <div class="form-group">
+        <label class="form-label">Nama Tower</label>
+        <input type="text" class="form-input" id="tower-name" placeholder="contoh: Tower of Absolute Hell">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Difficulty</label>
+        <select class="form-select" id="tower-diff">
+          <option value="">Pilih difficulty...</option>
+          <option>Unreal</option>
+          <option>Catastrophic</option>
+          <option>Extreme</option>
+          <option>Insane</option>
+          <option>Remorseless</option>
+          <option>Intense</option>
+          <option>Challenging</option>
+          <option>Difficult</option>
+          <option>Hard</option>
+          <option>Medium</option>
+          <option>Easy</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm" onclick="closeModal()">Batal</button>
+        <button class="btn-red btn-sm" onclick="saveCompletion()">Simpan →</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
+      authDomain: "eio-website.firebaseapp.com",
+      projectId: "eio-website",
+      storageBucket: "eio-website.firebasestorage.app",
+      messagingSenderId: "1030038379623",
+      appId: "1:1030038379623:web:54d24cb244d6dc9ade48c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const diffOrder = {Unreal:11,Catastrophic:10,Extreme:9,Insane:8,Remorseless:7,Intense:6,Challenging:5,Difficult:4,Hard:3,Medium:2,Easy:1};
+    const diffClass = {Unreal:'diff-unreal',Catastrophic:'diff-catastrophic',Extreme:'diff-extreme',Insane:'diff-insane',Remorseless:'diff-remorseless',Intense:'diff-intense'};
+
+    let currentUser = null;
+    let allUsers = [];
+    let targetUserId = null;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists() || !userDoc.data().isAdmin) {
+        alert('Akses ditolak. Kamu bukan admin!');
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      currentUser = user;
+      loadAllUsers();
+    });
+
+    async function loadAllUsers() {
+      const snap = await getDocs(collection(db, 'users'));
+      allUsers = [];
+      snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+      allUsers.sort((a, b) => (b.completions?.length || 0) - (a.completions?.length || 0));
+      renderMembers();
+      renderAdmins();
+    }
+
+    function renderMembers() {
+      const container = document.getElementById('members-list');
+      if (allUsers.length === 0) { container.innerHTML = '<div class="empty">Belum ada member.</div>'; return; }
+
+      container.innerHTML = allUsers.map(u => {
+        const completions = u.completions || [];
+        const sorted = [...completions].sort((a,b) => (diffOrder[b.difficulty]||0)-(diffOrder[a.difficulty]||0));
+        const joined = u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('id-ID') : '—';
+
+        const rows = sorted.map((c, i) => `
+          <tr>
+            <td>${i+1}</td>
+            <td style="font-weight:600">${c.towerName}</td>
+            <td><span class="diff-badge ${diffClass[c.difficulty]||'diff-default'}">${c.difficulty}</span></td>
+            <td>${c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—'}</td>
+            <td><button class="btn-delete" onclick="deleteCompletion('${u.id}', ${i}, ${JSON.stringify(JSON.stringify(c))})">Hapus</button></td>
+          </tr>`).join('');
+
+        const emptyRow = completions.length === 0 ? '<tr><td colspan="5" style="color:#aaa;font-size:0.8rem;padding:1rem">Belum ada completion</td></tr>' : '';
+
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-name">${u.robloxUsername || '—'} ${u.isAdmin ? '<span class="admin-badge" style="font-size:0.55rem;padding:0.2rem 0.5rem">ADMIN</span>' : ''}</div>
+                <div class="card-meta">${u.email} &nbsp;·&nbsp; Bergabung ${joined} &nbsp;·&nbsp; ${completions.length} completions</div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-add-comp" onclick="openModal('${u.id}', '${u.robloxUsername}')">+ Tambah Completion</button>
+                <button class="btn-toggle-admin ${u.isAdmin ? 'is-admin' : ''}" onclick="toggleAdmin('${u.id}', ${u.isAdmin})">${u.isAdmin ? '✓ Admin' : 'Jadikan Admin'}</button>
+              </div>
+            </div>
+            ${completions.length > 0 ? `
+            <table class="comp-table">
+              <thead><tr><th>#</th><th>Tower</th><th>Difficulty</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+              <tbody>${rows}${emptyRow}</tbody>
+            </table>` : '<div style="color:#aaa;font-size:0.82rem;padding:0.5rem 0">Belum ada completion</div>'}
+          </div>`;
+      }).join('');
+    }
+
+    function renderAdmins() {
+      const admins = allUsers.filter(u => u.isAdmin);
+      const container = document.getElementById('admins-list');
+      if (admins.length === 0) { container.innerHTML = '<div class="empty">Belum ada admin selain kamu.</div>'; return; }
+      container.innerHTML = admins.map(u => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.8rem 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-weight:700">${u.robloxUsername}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">${u.email}</div>
+          </div>
+          <button class="btn-delete" onclick="toggleAdmin('${u.id}', true)">Cabut Admin</button>
+        </div>`).join('');
+    }
+
+    window.switchTab = (tab) => {
+      document.getElementById('tab-members').style.display = tab === 'members' ? 'block' : 'none';
+      document.getElementById('tab-admins').style.display = tab === 'admins' ? 'block' : 'none';
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i===0&&tab==='members')||(i===1&&tab==='admins')));
+    };
+
+    window.openModal = (uid, username) => {
+      targetUserId = uid;
+      document.getElementById('modal-target-name').textContent = `untuk ${username}`;
+      document.getElementById('tower-name').value = '';
+      document.getElementById('tower-diff').value = '';
+      document.getElementById('modal-msg').style.display = 'none';
+      document.getElementById('modal-overlay').classList.add('open');
+    };
+
+    window.closeModal = () => {
+      document.getElementById('modal-overlay').classList.remove('open');
+      targetUserId = null;
+    };
+
+    window.closeModalOutside = (e) => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    };
+
+    window.saveCompletion = async () => {
+      const name = document.getElementById('tower-name').value.trim();
+      const diff = document.getElementById('tower-diff').value;
+      const msg = document.getElementById('modal-msg');
+      msg.style.display = 'none';
+
+      if (!name || !diff) {
+        msg.textContent = 'Isi semua field dulu!';
+        msg.className = 'modal-msg error';
+        msg.style.display = 'block';
+        return;
+      }
+
+      try {
+        const newC = { towerName: name, difficulty: diff, completedAt: new Date().toISOString() };
+        await updateDoc(doc(db, 'users', targetUserId), { completions: arrayUnion(newC) });
+        msg.textContent = 'Completion berhasil ditambahkan!';
+        msg.className = 'modal-msg success';
+        msg.style.display = 'block';
+        const u = allUsers.find(u => u.id === targetUserId);
+        if (u) u.completions = [...(u.completions||[]), newC];
+        renderMembers();
+        setTimeout(() => closeModal(), 1200);
+      } catch(e) {
+        msg.textContent = 'Gagal menyimpan: ' + e.message;
+        msg.className = 'modal-msg error';
+        msg.style.display = 'block';
+      }
+    };
+
+    window.deleteCompletion = async (uid, index, cJson) => {
+      if (!confirm('Hapus completion ini?')) return;
+      try {
+        const c = JSON.parse(cJson);
+        await updateDoc(doc(db, 'users', uid), { completions: arrayRemove(c) });
+        const u = allUsers.find(u => u.id === uid);
+        if (u) u.completions = u.completions.filter((_, i) => i !== index);
+        renderMembers();
+      } catch(e) { alert('Gagal hapus: ' + e.message); }
+    };
+
+    window.toggleAdmin = async (uid, currentlyAdmin) => {
+      const confirm_msg = currentlyAdmin ? 'Cabut status admin akun ini?' : 'Jadikan akun ini admin?';
+      if (!confirm(confirm_msg)) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { isAdmin: !currentlyAdmin });
+        const u = allUsers.find(u => u.id === uid);
+        if (u) u.isAdmin = !currentlyAdmin;
+        renderMembers();
+        renderAdmins();
+      } catch(e) { alert('Gagal: ' + e.message); }
+    };
+
+    window.doLogout = async () => { await signOut(auth); window.location.href = 'index.html'; };
+  </script>
+</body>
+</html>

@@ -378,6 +378,15 @@
 
     window.doLogout = async () => { await signOut(auth); window.location.href = 'index.html'; };
 
+    // Show admin link if admin
+    if (userData.isAdmin) {
+      const adminLink = document.createElement('a');
+      adminLink.href = 'admin.html';
+      adminLink.style = 'font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.5rem 1rem;background:#CE1126;color:white;border:1.5px solid #CE1126;text-decoration:none;';
+      adminLink.textContent = '⚡ Admin Panel';
+      document.querySelector('.nav-right').prepend(adminLink);
+    }
+
     window.openModal = () => { document.getElementById('modal-overlay').classList.add('open'); };
     window.closeModal = () => {
       document.getElementById('modal-overlay').classList.remove('open');

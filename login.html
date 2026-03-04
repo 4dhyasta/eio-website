@@ -417,7 +417,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCL7iA256SiV7VFXUeQ20KAByToy9HQHGQ",
@@ -520,18 +520,28 @@
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
       try {
-        // Get Roblox user ID from username
-        const robloxRes = await fetch(`/api/towerstats`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apiKey': '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143' },
-          body: JSON.stringify({ id: 0, universe_id: 8562822414 })
+        // Check if Roblox username already taken
+        const allUsers = await getDocs(collection(db, 'users'));
+        let alreadyTaken = false;
+        allUsers.forEach(d => {
+          if (d.id !== currentUser.uid && d.data().robloxUsername?.toLowerCase() === username.toLowerCase()) {
+            alreadyTaken = true;
+          }
         });
+        if (alreadyTaken) {
+          errEl.textContent = 'Username Roblox ini sudah digunakan akun lain!';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Simpan & Mulai Tracking →';
+          return;
+        }
 
         await setDoc(doc(db, 'users', currentUser.uid), {
           email: currentUser.email,
           robloxUsername: username,
           joinedAt: new Date().toISOString(),
-          completions: []
+          completions: [],
+          isAdmin: false
         });
 
         sucEl.textContent = 'Username disimpan! Mengalihkan...';

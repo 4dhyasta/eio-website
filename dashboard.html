@@ -167,10 +167,10 @@
     <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
     <p style="font-size:0.7rem; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:#CE1126; margin-bottom:0.5rem;">Akses Terbatas</p>
     <h2 style="font-size:2rem; font-weight:900; margin-bottom:1rem;">KAMU BELUM LOGIN</h2>
-    <p style="color:#777; font-size:0.95rem; margin-bottom:2rem; max-width:400px;">Login atau daftar dulu untuk mengakses dashboard dan mulai tracking progress tower kamu.</p>
+    <p style="color:#777; font-size:0.95rem; margin-bottom:2rem; max-width:400px;" data-id="not-logged-desc">Login atau daftar dulu untuk mengakses dashboard dan mulai tracking progress tower kamu.</p>
     <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
-      <a href="login.html" style="font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:0.9rem 2rem; background:#CE1126; color:white; text-decoration:none; border:1.5px solid #CE1126;">Login →</a>
-      <a href="login.html?tab=register" style="font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:0.9rem 2rem; background:transparent; color:#1a1a1a; text-decoration:none; border:1.5px solid #E2E2E2;">Daftar Sekarang</a>
+      <a href="login.html" style="font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:0.9rem 2rem; background:#CE1126; color:white; text-decoration:none; border:1.5px solid #CE1126;" data-id="not-logged-login">Login →</a>
+      <a href="login.html?tab=register" style="font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:0.9rem 2rem; background:transparent; color:#1a1a1a; text-decoration:none; border:1.5px solid #E2E2E2;" data-id="not-logged-register">Daftar Sekarang</a>
     </div>
   </div>
 
@@ -181,7 +181,7 @@
         <p class="welcome-eyebrow">Dashboard</p>
         <h1 class="welcome-title" id="welcome-title">SELAMAT DATANG</h1>
       </div>
-      <button class="sync-btn" id="sync-btn" onclick="syncBadges()">
+      <button class="sync-btn" id="sync-btn" data-id="sync-btn" onclick="syncBadges()">
         <span>⟳</span> Sync dari Roblox
       </button>
     </div>
@@ -190,19 +190,19 @@
 
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-label">Username Roblox</div>
+        <div class="stat-label" data-id="stat-label-roblox">Username Roblox</div>
         <div class="stat-val" id="stat-roblox" style="font-size:1.5rem">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Total Completions</div>
+        <div class="stat-label" data-id="stat-label-completions">Total Completions</div>
         <div class="stat-val red" id="stat-total">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Hardest Tower</div>
+        <div class="stat-label" data-id="stat-label-hardest">Hardest Tower</div>
         <div class="stat-val" id="stat-hardest" style="font-size:1.2rem; line-height:1.2">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Bergabung Sejak</div>
+        <div class="stat-label" data-id="stat-label-joined">Bergabung Sejak</div>
         <div class="stat-val" id="stat-joined" style="font-size:1.4rem">—</div>
       </div>
     </div>
@@ -300,6 +300,7 @@
 
     let currentUser = null;
     let userData = null;
+    let _lang = () => localStorage.getItem('eio-lang') || 'id';
 
     onAuthStateChanged(auth, async user => {
       if (!user) {
@@ -374,7 +375,7 @@
       const msg = document.getElementById('sync-msg');
       btn.disabled = true;
       btn.innerHTML = '<span>⟳</span> Syncing...';
-      msg.textContent = 'Mengambil badge dari Roblox... (bisa 10-30 detik)';
+      msg.textContent = (_lang()==='en'?'Fetching badges from Roblox... (may take 10-30s)':'Mengambil badge dari Roblox... (bisa 10-30 detik)');
       msg.className = 'sync-msg info';
       msg.style.display = 'block';
 
@@ -395,7 +396,7 @@
         }
 
         if (!syncData.completions?.length) {
-          msg.textContent = 'Tidak ada badge EToH ditemukan untuk akun ini.';
+          msg.textContent = (_lang()==='en'?'No EToH badges found for this account.':'Tidak ada badge EToH ditemukan untuk akun ini.');
           msg.className = 'sync-msg error';
           btn.disabled = false;
           btn.innerHTML = '<span>⟳</span> Sync dari Roblox';
@@ -423,7 +424,7 @@
 
       } catch(e) {
         console.error('Sync error:', e);
-        msg.textContent = 'Gagal sync: ' + e.message;
+        msg.textContent = (_lang()==='en'?'Sync failed: ':'Gagal sync: ') + e.message;
         msg.className = 'sync-msg error';
       }
 
@@ -452,7 +453,7 @@
       msg.style.display = 'none';
 
       if (!name || !diff) {
-        msg.textContent = 'Isi semua field dulu!';
+        msg.textContent = (_lang()==='en'?'Please fill all fields!':'Isi semua field dulu!');
         msg.className = 'modal-msg error';
         msg.style.display = 'block';
         return;
@@ -465,13 +466,13 @@
         const newCompletion = { towerName: name, difficulty: diff, completedAt: new Date().toISOString() };
         await updateDoc(doc(db, 'users', currentUser.uid), { completions: arrayUnion(newCompletion) });
         userData.completions = [...(userData.completions || []), newCompletion];
-        msg.textContent = 'Completion berhasil ditambahkan!';
+        msg.textContent = (_lang()==='en'?'Completion added successfully!':'Completion berhasil ditambahkan!');
         msg.className = 'modal-msg success';
         msg.style.display = 'block';
         renderDashboard();
         setTimeout(() => closeModal(), 1500);
       } catch(e) {
-        msg.textContent = 'Gagal menyimpan. Coba lagi.';
+        msg.textContent = (_lang()==='en'?'Failed to save. Please try again.':'Gagal menyimpan. Coba lagi.');
         msg.className = 'modal-msg error';
         msg.style.display = 'block';
         btn.disabled = false;
@@ -487,38 +488,26 @@
     (function() {
       var T = {
     "id": {
-        "nav-home": "Home",
-        "nav-players": "Players",
-        "nav-obbys": "Obby List",
-        "nav-logout": "Logout",
-        "section-title": "COMPLETION LIST",
-        "add-btn": "+ Tambah Manual",
-        "th-num": "#",
-        "th-tower": "Nama Tower",
-        "th-diff": "Difficulty",
-        "th-date": "Tanggal",
-        "modal-title": "TAMBAH COMPLETION",
-        "modal-sub": "Catat tower yang berhasil kamu selesaikan",
-        "btn-cancel": "Batal",
-        "btn-save": "Simpan →",
-        "sync-btn": "⟳ Sync dari Roblox"
+        "nav-home": "Home","nav-players": "Players","nav-obbys": "Obby List","nav-logout": "Logout",
+        "section-title": "COMPLETION LIST","add-btn": "+ Tambah Manual",
+        "th-num": "#","th-tower": "Nama Tower","th-diff": "Difficulty","th-date": "Tanggal",
+        "modal-title": "TAMBAH COMPLETION","modal-sub": "Catat tower yang berhasil kamu selesaikan",
+        "btn-cancel": "Batal","btn-save": "Simpan →","sync-btn": "⟳ Sync dari Roblox",
+        "stat-label-roblox": "Username Roblox","stat-label-completions": "Total Completions",
+        "stat-label-hardest": "Tower Terberat","stat-label-joined": "Bergabung Sejak",
+        "not-logged-desc": "Login atau daftar dulu untuk mengakses dashboard dan mulai tracking progress tower kamu.",
+        "not-logged-login": "Login →","not-logged-register": "Daftar Sekarang"
     },
     "en": {
-        "nav-home": "Home",
-        "nav-players": "Players",
-        "nav-obbys": "Obby List",
-        "nav-logout": "Logout",
-        "section-title": "COMPLETION LIST",
-        "add-btn": "+ Add Manually",
-        "th-num": "#",
-        "th-tower": "Tower Name",
-        "th-diff": "Difficulty",
-        "th-date": "Date",
-        "modal-title": "ADD COMPLETION",
-        "modal-sub": "Record the tower you completed",
-        "btn-cancel": "Cancel",
-        "btn-save": "Save →",
-        "sync-btn": "⟳ Sync from Roblox"
+        "nav-home": "Home","nav-players": "Players","nav-obbys": "Obby List","nav-logout": "Logout",
+        "section-title": "COMPLETION LIST","add-btn": "+ Add Manually",
+        "th-num": "#","th-tower": "Tower Name","th-diff": "Difficulty","th-date": "Date",
+        "modal-title": "ADD COMPLETION","modal-sub": "Record the tower you completed",
+        "btn-cancel": "Cancel","btn-save": "Save →","sync-btn": "⟳ Sync from Roblox",
+        "stat-label-roblox": "Roblox Username","stat-label-completions": "Total Completions",
+        "stat-label-hardest": "Hardest Tower","stat-label-joined": "Joined Since",
+        "not-logged-desc": "Login or register first to access the dashboard and start tracking your tower progress.",
+        "not-logged-login": "Login →","not-logged-register": "Register Now"
     }
 };
       window.setLang = function(l) {
@@ -533,6 +522,12 @@
           if (el.tagName === 'INPUT') { el.placeholder = t[key]; }
           else if (el.tagName === 'A' || el.tagName === 'BUTTON') { el.textContent = t[key]; }
           else { el.innerHTML = t[key]; }
+        });
+        
+        // Translate static data-static spans
+        document.querySelectorAll('[data-static]').forEach(function(el) {
+          var parts = el.getAttribute('data-static').split('|');
+          el.textContent = (l === 'en') ? parts[1] : parts[0];
         });
         document.querySelectorAll('.lang-btn').forEach(function(btn) {
           btn.classList.toggle('active', btn.getAttribute('data-lang') === l);

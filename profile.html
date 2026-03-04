@@ -135,32 +135,32 @@
       <!-- DISPLAY NAME -->
       <div class="form-group">
         <label class="form-label">Display Name</label>
-        <input type="text" class="form-input" id="input-displayname" placeholder="Nama yang ditampilkan di website">
-        <p class="form-hint">Nama ini yang akan muncul di Player List dan leaderboard.</p>
+        <input type="text" class="form-input" id="input-displayname" placeholder=(localStorage.getItem('eio-lang')==='en'?'Name shown on the website':'Nama yang ditampilkan di website')>
+        <p class="form-hint"><span data-static="Nama ini yang akan muncul di Player List dan leaderboard.|This name appears in the Player List and leaderboard.">Nama ini yang akan muncul di Player List dan leaderboard.</span></p>
       </div>
 
       <!-- ROBLOX USERNAME -->
       <div class="form-group">
         <label class="form-label">Username Roblox</label>
         <input type="text" class="form-input" id="input-roblox" placeholder="Username Roblox kamu">
-        <p class="form-hint">Ganti username Roblox jika ada perubahan. Pastikan username valid.</p>
+        <p class="form-hint"><span data-static="Ganti username Roblox jika ada perubahan. Pastikan username valid.|Update if your Roblox username changed. Make sure it's valid.">Ganti username Roblox jika ada perubahan. Pastikan username valid.</span></p>
       </div>
 
       <!-- EMAIL (readonly) -->
       <div class="form-group">
         <label class="form-label">Email</label>
         <input type="text" class="form-input" id="input-email" disabled>
-        <p class="form-hint">Email tidak bisa diubah.</p>
+        <p class="form-hint"><span data-static="Email tidak bisa diubah.|Email cannot be changed.">Email tidak bisa diubah.</span></p>
       </div>
 
-      <button class="btn-save" id="save-btn" onclick="saveProfile()">Simpan Perubahan →</button>
+      <button class="btn-save" id="save-btn" onclick="saveProfile()"><span data-static="Simpan Perubahan →|Save Changes →">Simpan Perubahan →</span></button>
     </div>
 
     <!-- DANGER ZONE -->
     <div class="danger-zone">
       <p class="danger-title">⚠ Danger Zone</p>
-      <p class="danger-text">Logout dari semua sesi aktif kamu.</p>
-      <button class="btn-danger" onclick="doLogout()">Logout Sekarang</button>
+      <p class="danger-text"><span data-static="Logout dari semua sesi aktif kamu.|Log out from all your active sessions.">Logout dari semua sesi aktif kamu.</span></p>
+      <button class="btn-danger" onclick="doLogout()"><span data-static="Logout Sekarang|Logout Now">Logout Sekarang</span></button>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
       const displayName = userData.displayName || userData.robloxUsername || '—';
       document.getElementById('profile-username').innerHTML = displayName + (userData.isAdmin ? ' <span class="admin-tag">Admin</span>' : '');
       document.getElementById('profile-email').textContent = currentUser.email;
-      document.getElementById('profile-joined').textContent = 'Bergabung ' + (userData.joinedAt ? new Date(userData.joinedAt).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '—');
+      document.getElementById('profile-joined').textContent = (localStorage.getItem('eio-lang')==='en'?'Joined ':'Bergabung ') + (userData.joinedAt ? new Date(userData.joinedAt).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '—');
       document.getElementById('input-displayname').value = userData.displayName || '';
       document.getElementById('input-roblox').value = userData.robloxUsername || '';
       document.getElementById('input-email').value = currentUser.email;
@@ -219,7 +219,7 @@
       const file = e.target.files[0];
       if (!file) return;
       if (file.size > 500 * 1024) {
-        showMsg('Ukuran foto maksimal 500KB!', 'error');
+        showMsg((localStorage.getItem('eio-lang')==='en'?'Photo must be under 500KB!':'Ukuran foto maksimal 500KB!'), 'error');
         return;
       }
       pendingAvatarFile = file;
@@ -238,7 +238,7 @@
       const robloxUsername = document.getElementById('input-roblox').value.trim();
       const btn = document.getElementById('save-btn');
 
-      if (!robloxUsername) { showMsg('Username Roblox tidak boleh kosong!', 'error'); return; }
+      if (!robloxUsername) { showMsg((localStorage.getItem('eio-lang')==='en'?'Roblox username cannot be empty!':'Username Roblox tidak boleh kosong!'), 'error'); return; }
 
       // Check duplicate roblox username (allow same user)
       if (robloxUsername.toLowerCase() !== (userData.robloxUsername || '').toLowerCase()) {
@@ -247,11 +247,11 @@
         snap.forEach(d => {
           if (d.id !== currentUser.uid && d.data().robloxUsername?.toLowerCase() === robloxUsername.toLowerCase()) taken = true;
         });
-        if (taken) { showMsg('Username Roblox ini sudah digunakan akun lain!', 'error'); return; }
+        if (taken) { showMsg((localStorage.getItem('eio-lang')==='en'?'This Roblox username is already taken!':'Username Roblox ini sudah digunakan akun lain!'), 'error'); return; }
       }
 
       btn.disabled = true;
-      btn.textContent = 'Menyimpan...';
+      btn.textContent = (localStorage.getItem('eio-lang')==='en'?'Saving...':'Menyimpan...');
 
       try {
         let avatarUrl = userData.avatarUrl || null;
@@ -277,13 +277,13 @@
         pendingAvatarFile = null;
 
         renderProfile();
-        showMsg('Profile berhasil disimpan!', 'success');
+        showMsg((localStorage.getItem('eio-lang')==='en'?'Profile saved successfully!':'Profile berhasil disimpan!'), 'success');
       } catch(e) {
-        showMsg('Gagal menyimpan: ' + e.message, 'error');
+        showMsg((localStorage.getItem('eio-lang')==='en'?'Failed to save: ':'Gagal menyimpan: ') + e.message, 'error');
       }
 
       btn.disabled = false;
-      btn.textContent = 'Simpan Perubahan →';
+      btn.textContent = (localStorage.getItem('eio-lang')==='en'?'Save Changes →':'Simpan Perubahan →');
     };
 
     function showMsg(text, type) {
@@ -310,7 +310,13 @@
         var key = el.getAttribute('data-id');
         if (t[key]) el.innerHTML = t[key];
       });
-      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      
+        // Translate static data-static spans
+        document.querySelectorAll('[data-static]').forEach(function(el) {
+          var parts = el.getAttribute('data-static').split('|');
+          el.textContent = (l === 'en') ? parts[1] : parts[0];
+        });
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
         btn.classList.toggle('active', btn.getAttribute('data-lang') === _lang);
       });
     }

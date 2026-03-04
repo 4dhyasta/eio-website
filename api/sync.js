@@ -17,50 +17,58 @@ export default async function handler(req, res) {
     const userId = userJson.data?.[0]?.id;
     if (!userId) return res.status(404).json({ error: 'User not found' });
 
-    // Step 2: Get all badges user has earned in EToH universe
-    // EToH universe ID: 3264581003, place ID: 8562822414
-    // We fetch badges the user owns from the EToH game
-    const ETOH_UNIVERSE = 3264581003;
+    // Step 2: Fetch all badges user has earned (paginated)
     let allBadges = [];
     let cursor = '';
-
     do {
       const url = `https://badges.roblox.com/v1/users/${userId}/badges?limit=100&sortOrder=Asc${cursor ? '&cursor=' + cursor : ''}`;
       const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
       const data = await r.json();
       if (data.data) allBadges = allBadges.concat(data.data);
       cursor = data.nextPageCursor || '';
-      if (allBadges.length > 2000) break; // safety limit
+      if (allBadges.length > 3000) break;
     } while (cursor);
 
-    // Step 3: Filter only EToH badges (awardingGame.universeId matches)
-    const etohBadges = allBadges.filter(b => b.awardingGame?.universeId === ETOH_UNIVERSE);
+    // Step 3: Filter EToH badges
+    // EToH place ID: 8562822414, universe ID: 3264581003
+    // awarder.id = place ID that awarded the badge
+    const ETOH_PLACE_ID = 8562822414;
+    const ETOH_UNIVERSE_ID = 3264581003;
 
-    // Step 4: Parse tower name and difficulty from badge name
-    // EToH badge format: "Tower Name [Difficulty]" or "Beat Tower Name"
-    const diffKeywords = [
-      'Unreal','Horrific','Catastrophic','Extreme','Insane',
-      'Remorseless','Intense','Challenging','Difficult','Hard','Medium','Easy'
-    ];
+    const etohBadges = allBadges.filter(b => {
+      const awarder = b.awarder || {};
+      const awarding = b.awardingGame || {};
+      return (
+        awarder.id === ETOH_PLACE_ID ||
+        awarder.id === ETOH_UNIVERSE_ID ||
+        awarding.id === ETOH_PLACE_ID ||
+        awarding.universeId === ETOH_UNIVERSE_ID ||
+        awarding.rootPlaceId === ETOH_PLACE_ID
+      );
+    });
+
+    // DEBUG: return sample of raw badge data so we can see the structure
+    if (etohBadges.length === 0 && allBadges.length > 0) {
+      // Return first few badges so we can inspect the structure
+      return res.status(200).json({
+        userId,
+        total: 0,
+        completions: [],
+        debug_total_badges: allBadges.length,
+        debug_sample: allBadges.slice(0, 3)
+      });
+    }
+
+    // Step 4: Parse tower name and difficulty from badge
+    const diffKeywords = ['Unreal','Horrific','Catastrophic','Extreme','Insane','Remorseless','Intense','Challenging','Difficult','Hard','Medium','Easy'];
 
     const completions = etohBadges.map(b => {
       let name = b.displayName || b.name || '';
       let difficulty = 'Unknown';
-
-      // Remove common prefixes
-      name = name.replace(/^(beat|complete|finish|tower of)\s*/i, '').trim();
-      // Capitalize first letter
-      if (name) name = name.charAt(0).toUpperCase() + name.slice(1);
-
-      // Find difficulty in badge description or name
-      const searchIn = (b.description || '') + ' ' + (b.displayName || '') + ' ' + (b.name || '');
+      const searchIn = (b.description || '') + ' ' + name;
       for (const d of diffKeywords) {
-        if (searchIn.toLowerCase().includes(d.toLowerCase())) {
-          difficulty = d;
-          break;
-        }
+        if (searchIn.toLowerCase().includes(d.toLowerCase())) { difficulty = d; break; }
       }
-
       return {
         towerName: name,
         difficulty,
@@ -69,11 +77,7 @@ export default async function handler(req, res) {
       };
     }).filter(c => c.towerName.length > 0);
 
-    res.status(200).json({ 
-      userId,
-      total: completions.length,
-      completions 
-    });
+    res.status(200).json({ userId, total: completions.length, completions });
 
   } catch(e) {
     res.status(500).json({ error: e.message });

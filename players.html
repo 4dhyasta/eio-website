@@ -233,7 +233,7 @@
 
   <div class="table-wrap">
     <div class="table-meta">
-      <span class="table-count" id="table-count">Memuat...</span>
+      <span class="table-count" id="table-count"><span data-static="Memuat...|Loading...">Memuat...</span></span>
       <div class="sort-btns">
         <button class="sort-btn active" onclick="sortBy('completions')" data-id="sort-completions">Completions</button>
         <button class="sort-btn" onclick="sortBy('difficulty')" data-id="sort-difficulty">Difficulty</button>
@@ -357,7 +357,7 @@
       document.getElementById('table-count').textContent = `${filtered.length} player`;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><h3>TIDAK ADA PLAYER</h3><p>Belum ada player yang ditemukan.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><h3><span data-static="TIDAK ADA PLAYER|NO PLAYERS FOUND">TIDAK ADA PLAYER</span></h3><p><span data-static="Belum ada player yang ditemukan.|No players found.">Belum ada player yang ditemukan.</span></p></div></td></tr>`;
         return;
       }
 
@@ -451,6 +451,12 @@
           if (el.tagName === 'INPUT') { el.placeholder = t[key]; }
           else if (el.tagName === 'A' || el.tagName === 'BUTTON') { el.textContent = t[key]; }
           else { el.innerHTML = t[key]; }
+        });
+        
+        // Translate static data-static spans
+        document.querySelectorAll('[data-static]').forEach(function(el) {
+          var parts = el.getAttribute('data-static').split('|');
+          el.textContent = (l === 'en') ? parts[1] : parts[0];
         });
         document.querySelectorAll('.lang-btn').forEach(function(btn) {
           btn.classList.toggle('active', btn.getAttribute('data-lang') === l);

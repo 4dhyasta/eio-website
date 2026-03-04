@@ -230,14 +230,14 @@
       </div>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" id="search-input" placeholder="Cari tower..." data-id="search-ph" oninput="renderObbys()">
+        <input type="text" class="search-input" id="search-input" placeholder=(localStorage.getItem('eio-lang')==='en'?'Search tower...':'Cari tower...') data-id="search-ph" oninput="renderObbys()">
       </div>
     </div>
   </div>
 
   <div class="table-wrap">
     <div class="table-meta">
-      <span class="table-count" id="table-count">Memuat...</span>
+      <span class="table-count" id="table-count"><span data-static="Memuat...|Loading...">Memuat...</span></span>
       <div class="sort-btns">
         <button class="sort-btn active" id="sort-difficulty-btn" onclick="sortBy('difficulty')">Difficulty</button>
         <button class="sort-btn" id="sort-beat-btn" onclick="sortBy('beat')">Most Beaten</button>
@@ -344,7 +344,7 @@
       document.getElementById('table-count').textContent = `${filtered.length} tower`;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><h3>TIDAK ADA TOWER</h3><p>Belum ada completion yang cocok.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><h3><span data-static="TIDAK ADA TOWER|NO TOWERS FOUND">TIDAK ADA TOWER</span></h3><p><span data-static="Belum ada completion yang cocok.|No matching completions yet.">Belum ada completion yang cocok.</span></p></div></td></tr>`;
         return;
       }
 
@@ -383,7 +383,7 @@
   <script>
     (function() {
       var T = {
-        "id": { "page-eyebrow": "Tower Database", "page-title": "OBBY LIST", "search-ph": "Cari tower..." },
+        "id": { "page-eyebrow": "Tower Database", "page-title": "OBBY LIST", "search-ph": (localStorage.getItem('eio-lang')==='en'?'Search tower...':'Cari tower...') },
         "en": { "page-eyebrow": "Tower Database", "page-title": "OBBY LIST", "search-ph": "Search tower..." }
       };
       window.setLang = function(l) { localStorage.setItem('eio-lang', l); applyLang(l); };
@@ -394,6 +394,12 @@
           if (!t[key]) return;
           if (el.tagName === 'INPUT') { el.placeholder = t[key]; }
           else { el.innerHTML = t[key]; }
+        });
+        
+        // Translate static data-static spans
+        document.querySelectorAll('[data-static]').forEach(function(el) {
+          var parts = el.getAttribute('data-static').split('|');
+          el.textContent = (l === 'en') ? parts[1] : parts[0];
         });
         document.querySelectorAll('.lang-btn').forEach(function(btn) {
           btn.classList.toggle('active', btn.getAttribute('data-lang') === l);

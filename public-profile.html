@@ -140,7 +140,7 @@
   </nav>
 
   <div class="main" id="main-content">
-    <div style="text-align:center;padding:5rem;color:var(--text-muted)">Memuat profil...</div>
+    <div style="text-align:center;padding:5rem;color:var(--text-muted)"><span data-static="Memuat profil...|Loading profile...">Memuat profil...</span></div>
   </div>
 
   <script type="module">
@@ -239,7 +239,7 @@
               <td><span class="diff-badge ${diffClass[c.difficulty]||'diff-default'}">${c.difficulty}</span></td>
               <td style="font-size:0.75rem;color:var(--text-muted)">${c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—'}</td>
             </tr>`).join('')
-          : `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)">Belum ada completion</td></tr>`;
+          : `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)"><span data-static="Belum ada completion|No completions yet">Belum ada completion</span></td></tr>`;
 
         main.innerHTML = `
           <div class="profile-hero">
@@ -262,23 +262,23 @@
           <div class="stats-row">
             <div class="stat-card">
               <div class="stat-val">${rankLabel}</div>
-              <div class="stat-label">Top Player</div>
+              <div class="stat-label"><span data-static="Top Player|Top Player">Top Player</span></div>
             </div>
             <div class="stat-card">
               <div class="stat-val">${completions.length}</div>
-              <div class="stat-label">Total Completions</div>
+              <div class="stat-label"><span data-static="Total Completions|Total Completions">Total Completions</span></div>
             </div>
             <div class="stat-card">
               ${hardestHtml}
-              <div class="stat-label" style="margin-top:0.5rem">Hardest Completion</div>
+              <div class="stat-label" style="margin-top:0.5rem"><span data-static="Hardest Completion|Hardest Completion">Hardest Completion</span></div>
             </div>
           </div>
 
-          <h2 class="section-title">COMPLETION LIST</h2>
+          <h2 class="section-title"><span data-static="COMPLETION LIST|COMPLETION LIST">COMPLETION LIST</span></h2>
           <table class="comp-table">
             <thead>
               <tr>
-                <th>#</th><th>Tower</th><th>Difficulty</th><th>Tanggal</th>
+                <th>#</th><th><span data-static="Tower|Tower">Tower</span></th><th>Difficulty</th><th><span data-static="Tanggal|Date">Tanggal</span></th>
               </tr>
             </thead>
             <tbody>${rowsHtml}</tbody>
@@ -290,7 +290,7 @@
           <div class="not-found">
             <h2>ERROR</h2>
             <p>${e.message}</p>
-            <a href="players.html" class="back-btn">← Kembali ke Player List</a>
+            <a href="players.html" class="back-btn"><span data-static="← Kembali ke Player List|← Back to Player List">← Kembali ke Player List</span></a>
           </div>`;
       }
     }
@@ -298,9 +298,9 @@
     function renderNotFound(main) {
       main.innerHTML = `
         <div class="not-found">
-          <h2>PROFIL TIDAK DITEMUKAN</h2>
-          <p>Player ini tidak ada atau sudah dihapus.</p>
-          <a href="players.html" class="back-btn">← Kembali ke Player List</a>
+          <h2><span data-static="PROFIL TIDAK DITEMUKAN|PROFILE NOT FOUND">PROFIL TIDAK DITEMUKAN</span></h2>
+          <p><span data-static="Player ini tidak ada atau sudah dihapus.|This player does not exist or has been removed.">Player ini tidak ada atau sudah dihapus.</span></p>
+          <a href="players.html" class="back-btn"><span data-static="← Kembali ke Player List|← Back to Player List">← Kembali ke Player List</span></a>
         </div>`;
     }
 
@@ -311,7 +311,13 @@
     var _lang = localStorage.getItem('eio-lang') || 'id';
     window.setLang = function(l) { _lang = l; localStorage.setItem('eio-lang', l); applyLang(); };
     function applyLang() {
-      document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      
+        // Translate static data-static spans
+        document.querySelectorAll('[data-static]').forEach(function(el) {
+          var parts = el.getAttribute('data-static').split('|');
+          el.textContent = (l === 'en') ? parts[1] : parts[0];
+        });
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
         btn.classList.toggle('active', btn.getAttribute('data-lang') === _lang);
       });
     }

@@ -398,7 +398,7 @@
                 ${extra > 0 ? `<span class="player-tag player-tag-more">+${extra} lagi</span>` : ''}
               </div>
             </td>
-            <td><span class="diff-badge ${dClass}">${o.difficulty || '—'}</span>${canonBadge}</td>
+            <td><div style="display:flex;flex-direction:column;gap:3px;"><div style="display:flex;align-items:center;gap:5px;"><span class="diff-badge ${dClass}">${o.difficulty || '—'}</span>${(o.diffNum && o.diffNum > 0) ? `<span style="font-size:0.7rem;color:#999;font-family:'DM Mono',monospace;">${o.diffNum.toFixed(2)}</span>` : ''}</div><div>${canonBadge}</div></div></td>
           </tr>`;
       }).join('');
     };

@@ -271,7 +271,7 @@
             return `<tr>
               <td style="color:var(--text-muted);font-size:0.8rem">${i+1}</td>
               <td style="font-weight:600">${c.towerName}${gameLabel}${unlegit}</td>
-              <td><span class="diff-badge ${dClass}">${c.difficulty}</span>${(c.diffNum && c.diffNum > 0) ? `<span style="font-size:0.7rem;color:#999;margin-left:4px;font-family:'DM Mono',monospace;">${c.diffNum.toFixed(2)}</span>` : ''}${canonBadge}</td>
+              <td><div style="display:flex;flex-direction:column;gap:3px;"><div style="display:flex;align-items:center;gap:5px;"><span class="diff-badge ${dClass}">${c.difficulty}</span>${(c.diffNum && c.diffNum > 0) ? `<span style="font-size:0.7rem;color:#999;font-family:'DM Mono',monospace;">${c.diffNum.toFixed(2)}</span>` : ''}</div><div>${canonBadge}</div></div></td>
               <td style="font-size:0.75rem;color:var(--text-muted)">${date}</td>
             </tr>`;
           }).join('');

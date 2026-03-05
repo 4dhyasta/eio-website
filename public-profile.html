@@ -119,6 +119,9 @@
       .profile-hero { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 2rem; }
       .stats-row { grid-template-columns: 1fr 1fr; }
     }
+  
+    .canon-badge { font-size:0.55rem; font-weight:700; letter-spacing:1px; padding:2px 6px; background:#1a9030; color:#fff; border-radius:3px; margin-left:5px; }
+    .noncanon-badge { font-size:0.55rem; font-weight:700; letter-spacing:1px; padding:2px 6px; background:#777; color:#fff; border-radius:3px; margin-left:5px; }
   </style>
 </head>
 <body>
@@ -253,7 +256,7 @@
         };
         window.renderProfileCompletions = function() {
           const g = window._profileGame;
-          const list = g === 'all' ? window._profileCompletions : window._profileCompletions.filter(c => (c.game||'etoh') === g);
+          const list = g === 'all' ? window._profileCompletions : window._profileCompletions.filter(c => (c.game||'etoh').split('+').includes(g));
           const tbody = document.getElementById('comp-tbody');
           if (!list.length) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted)">Belum ada completion</td></tr>`;
@@ -261,7 +264,7 @@
           }
           tbody.innerHTML = list.map((c, i) => {
             const dClass = diffClass[c.difficulty] || 'diff-default';
-            const gameLabel = (c.game && c.game !== 'etoh') ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:5px;">${c.game.toUpperCase()}</span>` : '';
+            const gameLabel = (() => { if (!c.game) return ''; const games = c.game.split('+').filter(g => g !== 'etoh'); return games.map(g => `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:4px;">${g.toUpperCase()}</span>`).join(''); })();
             const unlegit = c.isAllJump ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#CE1126;color:#fff;border-radius:3px;margin-left:5px;">UN-LEGIT</span>` : '';
             const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';
             return `<tr>

@@ -136,30 +136,49 @@ export default async function handler(req, res) {
       allParsed.push({ badge, parsed, awardedDate, badgeId, diff });
     }
 
-    // Second pass: build completions, all-jump inherits legit difficulty
-    const seen = new Set();
-    const completions = [];
+    // Second pass: build completions, merge same tower across games
+    const towerMap = new Map(); // towerName_lower:isAllJump -> completion entry
+    const seenPerGame = new Set(); // gameKey:name:isAllJump dedup
 
     for (const { badge, parsed, awardedDate, badgeId, diff } of allParsed) {
       const { name, isAllJump } = parsed;
-      const dedupeKey = `${badge.gameKey}:${name.toLowerCase()}:${isAllJump}`;
-      if (seen.has(dedupeKey)) continue;
-      seen.add(dedupeKey);
+      const gameKey = badge.gameKey;
+      const perGameKey = `${gameKey}:${name.toLowerCase()}:${isAllJump}`;
+      if (seenPerGame.has(perGameKey)) continue;
+      seenPerGame.add(perGameKey);
 
-      // All-jump: try to inherit difficulty from legit version
       const resolvedDiff = isAllJump
-        ? (legitDiffByName[`${badge.gameKey}:${name.toLowerCase()}`] || diff)
+        ? (legitDiffByName[`${gameKey}:${name.toLowerCase()}`] || diff)
         : diff;
 
-      completions.push({
-        towerName: name,
-        difficulty: resolvedDiff,
-        game: badge.gameKey,
-        isAllJump: isAllJump || false,
-        completedAt: awardedDate || new Date().toISOString(),
-        badgeId
-      });
+      const mergeKey = `${name.toLowerCase()}:${isAllJump}`;
+      if (towerMap.has(mergeKey)) {
+        // Already exists - just add game if not already there
+        const existing = towerMap.get(mergeKey);
+        if (!existing.games.includes(gameKey)) existing.games.push(gameKey);
+        // Use highest difficulty
+        const existOrder = ['Easy','Medium','Hard','Difficult','Challenging','Intense','Remorseless','Insane','Extreme','Terrifying','Catastrophic','Horrific','Unreal','Nil'].indexOf(existing.difficulty);
+        const newOrder = ['Easy','Medium','Hard','Difficult','Challenging','Intense','Remorseless','Insane','Extreme','Terrifying','Catastrophic','Horrific','Unreal','Nil'].indexOf(resolvedDiff);
+        if (newOrder > existOrder) existing.difficulty = resolvedDiff;
+      } else {
+        towerMap.set(mergeKey, {
+          towerName: name,
+          difficulty: resolvedDiff,
+          games: [gameKey],
+          isAllJump: isAllJump || false,
+          completedAt: awardedDate || new Date().toISOString(),
+          badgeId
+        });
+      }
     }
+
+    // Convert game arrays to sorted string: etoh → tea → cscd order
+    const GAME_ORDER = ['etoh', 'tea', 'cscd'];
+    const completions = Array.from(towerMap.values()).map(c => ({
+      ...c,
+      game: GAME_ORDER.filter(g => c.games.includes(g)).join('+'),
+      games: undefined
+    }));
 
     res.status(200).json({ userId, total: completions.length, completions });
 

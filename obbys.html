@@ -201,6 +201,9 @@
       .page-header { padding: 3rem 1.5rem 2rem; }
       .table-wrap { padding: 2rem 1.5rem; }
     }
+  
+    .canon-badge { font-size:0.55rem; font-weight:700; letter-spacing:1px; padding:2px 6px; background:#1a9030; color:#fff; border-radius:3px; margin-left:5px; }
+    .noncanon-badge { font-size:0.55rem; font-weight:700; letter-spacing:1px; padding:2px 6px; background:#777; color:#fff; border-radius:3px; margin-left:5px; }
   </style>
 </head>
 <body>
@@ -253,9 +256,9 @@
         <tr>
           <th>#</th>
           <th>Tower</th>
-          <th>Difficulty</th>
+          <th>Game</th>
           <th>Beaten By</th>
-          
+          <th>Difficulty</th>
         </tr>
       </thead>
       <tbody id="obby-tbody">
@@ -347,7 +350,7 @@
       let filtered = allObbys.filter(o => o.towerName.toLowerCase().includes(query));
 
       // Game filter
-      if (currentGame !== 'all') filtered = filtered.filter(o => (o.game || 'etoh') === currentGame);
+      if (currentGame !== 'all') filtered = filtered.filter(o => (o.game || 'etoh').split('+').includes(currentGame));
 
       if (currentSort === 'difficulty') filtered.sort((a, b) => (diffOrder[b.difficulty]||0) - (diffOrder[a.difficulty]||0));
       else if (currentSort === 'beat') filtered.sort((a, b) => b.players.length - a.players.length);
@@ -364,13 +367,18 @@
       tbody.innerHTML = filtered.map((o, i) => {
         const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
         const dClass = diffClass[o.difficulty] || 'diff-default';
+        const nonCanonDiffs = ['Horrific','Unreal','Nil'];
+        const isNonCanon = nonCanonDiffs.includes(o.difficulty);
+        const canonBadge = `<span class="${isNonCanon ? 'noncanon-badge' : 'canon-badge'}">${isNonCanon ? 'NON-CANON' : 'CANON'}</span>`;
         const iconColors = {
-          'Unreal':'#3c0080','Horrific':'#aa00ff','Catastrophic':'#1a1a1a',
+          'Nil':'#333','Unreal':'#3c0080','Horrific':'#aa00ff','Catastrophic':'#1a1a1a',
           'Terrifying':'#00c8c8','Extreme':'#1e90ff','Insane':'#0050dc','Remorseless':'#ff1493',
           'Intense':'#222222','Challenging':'#a01414','Difficult':'#e06000',
           'Hard':'#e06000','Medium':'#a07800','Easy':'#1a9030'
         };
         const iconBg = iconColors[o.difficulty] || '#888';
+        const games = (o.game || 'etoh').split('+');
+        const gameLabel = games.map(g => `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-right:2px;">${g.toUpperCase()}</span>`).join('');
         const shownPlayers = o.players.slice(0, 5);
         const extra = o.players.length - 5;
         return `
@@ -382,14 +390,16 @@
                 <div class="player-name">${o.towerName}</div>
               </div>
             </td>
-            <td><span class="diff-badge ${dClass}">${o.difficulty || '—'}</span></td>
+            <td>${gameLabel}</td>
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:0.35rem;align-items:center;">
                 ${shownPlayers.map(p => `<span class="player-tag">${p}</span>`).join('')}
                 ${extra > 0 ? `<span class="player-tag player-tag-more">+${extra} lagi</span>` : ''}
               </div>
             </td>
+            <td><span class="diff-badge ${dClass}">${o.difficulty || '—'}</span>${canonBadge}</td>
           </tr>`;
+      }).join('');
       }).join('');
     };
 

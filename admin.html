@@ -59,7 +59,9 @@
 
     /* DIFF BADGES */
     .diff-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px; display: inline-block; }
+    .diff-nil { background: rgba(255,255,255,0.9); color: #000; border: 1px solid #000; }
     .diff-unreal { background: rgba(60,0,120,0.2); color: #3c0080; border: 1px solid rgba(60,0,120,0.4); }
+    .diff-horrific { background: rgba(170,0,255,0.15); color: #aa00ff; border: 1px solid rgba(170,0,255,0.3); }
     .diff-catastrophic { background: rgba(240,240,240,0.9); color: #1a1a1a; border: 1px solid #ccc; }
     .diff-terrifying { background: rgba(0,200,200,0.15); color: #00c8c8; border: 1px solid rgba(0,200,200,0.3); }
     .diff-extreme { background: rgba(30,144,255,0.15); color: #1e90ff; border: 1px solid rgba(30,144,255,0.3); }
@@ -205,9 +207,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13};
+    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13,'Nil':14};
     const diffClass = {
-      'Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
+      'Nil':'diff-nil','Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
       'Terrifying':'diff-terrifying','Extreme':'diff-extreme','Insane':'diff-insane','Remorseless':'diff-remorseless',
       'Intense':'diff-intense','Challenging':'diff-challenging','Difficult':'diff-difficult',
       'Hard':'diff-hard','Medium':'diff-medium','Easy':'diff-easy'

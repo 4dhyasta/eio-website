@@ -89,7 +89,9 @@
     .completions-table td { padding: 1rem; font-size: 0.9rem; }
 
     .diff-badge { font-family: 'Inter', sans-serif; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 2px; }
+    .diff-nil { background: rgba(255,255,255,0.9); color: #000; border: 1px solid #000; }
     .diff-unreal { background: rgba(60,0,120,0.2); color: #3c0080; border: 1px solid rgba(60,0,120,0.4); }
+    .diff-horrific { background: rgba(170,0,255,0.15); color: #aa00ff; border: 1px solid rgba(170,0,255,0.3); }
     .diff-catastrophic { background: rgba(240,240,240,0.9); color: #1a1a1a; border: 1px solid #ccc; }
     .diff-terrifying { background: rgba(0,200,200,0.15); color: #00c8c8; border: 1px solid rgba(0,200,200,0.3); }
     .diff-extreme { background: rgba(30,144,255,0.15); color: #1e90ff; border: 1px solid rgba(30,144,255,0.3); }
@@ -241,12 +243,22 @@
         <input type="text" class="form-input" id="tower-name" placeholder="contoh: Tower of Pain">
       </div>
       <div class="form-group">
+        <label class="form-label">Game</label>
+        <select class="form-select" id="tower-game">
+          <option value="etoh">EToH</option>
+          <option value="tea">TEA</option>
+          <option value="cscd">CSCD</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label class="form-label">Difficulty</label>
         <select class="form-select" id="tower-diff">
           <option value="">Pilih difficulty...</option>
+          <option value="Nil">Nil</option>
           <option value="Unreal">Unreal</option>
           <option value="Horrific">Horrific</option>
           <option value="Catastrophic">Catastrophic</option>
+          <option value="Terrifying">Terrifying</option>
           <option value="Extreme">Extreme</option>
           <option value="Insane">Insane</option>
           <option value="Remorseless">Remorseless</option>
@@ -290,10 +302,10 @@
     const TOWERSTATS_API_KEY = '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143';
     const UNIVERSE_ID = 3264581003;
 
-    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13};
+    const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13,'Nil':14};
 
     const diffClass = {
-      'Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
+      'Nil':'diff-nil','Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
       'Terrifying':'diff-terrifying','Extreme':'diff-extreme','Insane':'diff-insane','Remorseless':'diff-remorseless',
       'Intense':'diff-intense','Challenging':'diff-challenging','Difficult':'diff-difficult',
       'Hard':'diff-hard','Medium':'diff-medium','Easy':'diff-easy'
@@ -360,10 +372,12 @@
       tbody.innerHTML = sorted.map((c, i) => {
         const dClass = diffClass[c.difficulty] || 'diff-default';
         const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';
+        const gameLabel = c.game ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:6px;">${c.game.toUpperCase()}</span>` : '';
+        const unlegit = c.isAllJump ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#CE1126;color:#fff;border-radius:3px;margin-left:6px;">UN-LEGIT</span>` : '';
         return `
           <tr>
             <td style="font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--muted)">${i+1}</td>
-            <td style="font-weight:600">${c.towerName}</td>
+            <td style="font-weight:600">${c.towerName}${gameLabel}${unlegit}</td>
             <td><span class="diff-badge ${dClass}">${c.difficulty}</span></td>
             <td style="font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted)">${date}</td>
           </tr>
@@ -449,6 +463,7 @@
     window.saveCompletion = async () => {
       const name = document.getElementById('tower-name').value.trim();
       const diff = document.getElementById('tower-diff').value;
+      const game = document.getElementById('tower-game').value;
       const btn = document.getElementById('save-btn');
       const msg = document.getElementById('modal-msg');
       msg.style.display = 'none';
@@ -464,7 +479,7 @@
       btn.textContent = 'Menyimpan...';
 
       try {
-        const newCompletion = { towerName: name, difficulty: diff, completedAt: new Date().toISOString() };
+        const newCompletion = { towerName: name, difficulty: diff, game, isAllJump: false, completedAt: new Date().toISOString() };
         await updateDoc(doc(db, 'users', currentUser.uid), { completions: arrayUnion(newCompletion) });
         userData.completions = [...(userData.completions || []), newCompletion];
         msg.textContent = (_lang()==='en'?'Completion added successfully!':'Completion berhasil ditambahkan!');

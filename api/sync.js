@@ -1,4 +1,4 @@
-import { TOWER_DB } from './towerdb.js';
+import { TOWER_DB, TEA_NAME_DB } from './towerdb.js';
 
 const GAMES = {
   etoh: { name: 'EToH', placeId: 8562822414,  universeId: 3264581003 },
@@ -58,18 +58,22 @@ function parseBadgeName(rawName, gameKey) {
   return { name, isAllJump };
 }
 
-function getDifficulty(badge, gameKey) {
-  // For EToH: use our accurate towerdb
+function getDifficulty(badge, gameKey, towerName) {
+  // EToH: use accurate badge ID db
   if (gameKey === 'etoh') {
     const dbEntry = TOWER_DB[badge.id];
     if (dbEntry) return dbEntry.difficulty;
   }
 
-  // For TEA/CSCD: search badge name + description for difficulty keywords
-  // Order matters: check hardest first to avoid false matches
+  // TEA: use name-based db
+  if (gameKey === 'tea' && towerName) {
+    const entry = TEA_NAME_DB[towerName.toLowerCase()];
+    if (entry) return entry;
+  }
+
+  // Fallback: keyword search in badge name/description
   const searchIn = ((badge.description || '') + ' ' + (badge.displayName || '') + ' ' + (badge.name || '')).toLowerCase();
   for (const d of DIFF_KEYWORDS) {
-    // Use word boundary matching to avoid "Insane" matching "Insanely"
     const regex = new RegExp('\\b' + d.toLowerCase() + '\\b');
     if (regex.test(searchIn)) return d;
   }
@@ -131,7 +135,7 @@ export default async function handler(req, res) {
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
-      const difficulty = getDifficulty(badge, badge.gameKey);
+      const difficulty = getDifficulty(badge, badge.gameKey, name);
 
       completions.push({
         towerName: name,

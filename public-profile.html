@@ -205,7 +205,15 @@
         const rank = allPlayers.findIndex(p => p.uid === uid) + 1;
 
         // Get hardest completion
-        const completions = data.completions || [];
+        const rawCompletions = data.completions || [];
+        const legitDiffMap = {};
+        rawCompletions.forEach(c => {
+          if (!c.isAllJump && c.towerName && c.difficulty)
+            legitDiffMap[c.towerName.toLowerCase()] = c.difficulty;
+        });
+        const completions = rawCompletions.map(c =>
+          c.isAllJump ? { ...c, difficulty: legitDiffMap[c.towerName?.toLowerCase()] || c.difficulty } : c
+        );
         let hardest = null, hardestOrder = -1;
         completions.forEach(c => {
           const o = diffOrder[c.difficulty] || 0;

@@ -270,6 +270,7 @@
               <div class="card-actions">
                 <button class="btn-add-comp" onclick="openModal('${u.id}', '${u.robloxUsername}')">+ Tambah Completion</button>
                 <button class="btn-toggle-admin ${u.isAdmin ? 'is-admin' : ''}" onclick="toggleAdmin('${u.id}', ${u.isAdmin})">${u.isAdmin ? '✓ Admin' : (localStorage.getItem('eio-lang')==='en'?'Make Admin':'Jadikan Admin')}</button>
+                ${completions.length > 0 ? `<button class="btn-delete" style="padding:0.35rem 0.8rem;" onclick="deleteAllCompletions('${u.id}', '${u.robloxUsername}')">🗑 Hapus Semua</button>` : ''}
               </div>
             </div>
             ${completions.length > 0 ? `
@@ -376,6 +377,17 @@
         if (u) u.completions = newCompletions;
         renderMembers();
       } catch(e) { alert('Gagal hapus: ' + e.message); }
+    };
+
+    window.deleteAllCompletions = async (uid, username) => {
+      if (!confirm(`Hapus SEMUA completion milik ${username}? Aksi ini tidak bisa dibatalkan!`)) return;
+      if (!confirm(`Yakin? Semua completion ${username} akan dihapus permanen.`)) return;
+      try {
+        await updateDoc(doc(db, 'users', uid), { completions: [] });
+        const u = allUsers.find(u => u.id === uid);
+        if (u) u.completions = [];
+        renderMembers();
+      } catch(e) { alert('Gagal hapus semua: ' + e.message); }
     };
 
     window.toggleAdmin = async (uid, currentlyAdmin) => {

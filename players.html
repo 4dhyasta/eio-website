@@ -237,10 +237,6 @@
   <div class="table-wrap">
     <div class="table-meta">
       <span class="table-count" id="table-count"><span data-static="Memuat...|Loading...">Memuat...</span></span>
-      <div class="sort-btns">
-        <button class="sort-btn active" onclick="sortBy('difficulty')" data-id="sort-difficulty">Difficulty</button>
-        <button class="sort-btn" onclick="sortBy('name')" data-id="sort-name">Nama</button>
-      </div>
     </div>
 
     <table class="player-table">
@@ -314,18 +310,37 @@
       snap.forEach(doc => {
         const data = doc.data();
         const completions = data.completions || [];
+
+        // Build lookup: towerName (lowercase) -> difficulty from legit completions
+        const legitDiffMap = {};
+        completions.forEach(c => {
+          if (!c.isAllJump && c.towerName && c.difficulty) {
+            legitDiffMap[c.towerName.toLowerCase()] = c.difficulty;
+          }
+        });
+
+        // Resolve difficulty for all completions (un-legit inherits from legit)
+        const resolved = completions.map(c => {
+          if (c.isAllJump) {
+            const legitDiff = legitDiffMap[c.towerName?.toLowerCase()];
+            return { ...c, difficulty: legitDiff || c.difficulty };
+          }
+          return c;
+        });
+
         let hardest = null;
         let hardestOrder = -1;
-        completions.forEach(c => {
+        resolved.forEach(c => {
           const o = diffOrder[c.difficulty] || 0;
           if (o > hardestOrder) { hardestOrder = o; hardest = c; }
         });
+
         allPlayers.push({
           uid: doc.id,
           username: data.robloxUsername || '—',
           displayName: data.displayName || data.robloxUsername || '—',
           avatarUrl: data.avatarUrl || null,
-          completions,
+          completions: resolved,
           hardest,
           hardestOrder,
           joinedAt: data.joinedAt || ''
@@ -367,7 +382,11 @@
         const joined = p.joinedAt ? new Date(p.joinedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short' }) : '—';
         const hardestName = p.hardest ? p.hardest.towerName : '—';
         const hardestDiff = p.hardest ? p.hardest.difficulty : null;
+        const hardestGame = p.hardest?.game || 'etoh';
+        const hardestIsAllJump = p.hardest?.isAllJump || false;
         const dClass = hardestDiff ? (diffClass[hardestDiff] || 'diff-default') : 'diff-default';
+        const gameLabel = p.hardest ? `<span style="font-size:0.55rem;font-weight:700;letter-spacing:1px;padding:1px 5px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:5px;">${hardestGame.toUpperCase()}</span>` : '';
+        const unlegitLabel = hardestIsAllJump ? `<span style="font-size:0.55rem;font-weight:700;letter-spacing:1px;padding:1px 5px;background:#CE1126;color:#fff;border-radius:3px;margin-left:4px;">UN-LEGIT</span>` : '';
 
         const iconColors = {
           'Unreal':'#3c0080','Horrific':'#aa00ff','Catastrophic':'#1a1a1a',
@@ -396,7 +415,7 @@
             </td>
             <td>
               ${hardestDiff ? `<span class="diff-badge ${dClass}">${hardestDiff}</span>` : ''}
-              <div style="font-size:0.85rem; margin-top:0.3rem; color:rgba(255,255,255,0.7)">${hardestName}</div>
+              <div style="font-size:0.85rem; margin-top:0.3rem; color:rgba(255,255,255,0.7)">${hardestName}${gameLabel}${unlegitLabel}</div>
             </td>
             <td><span class="completion-count">${p.completions.length}</span></td>
             <td style="font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted)">${joined}</td>

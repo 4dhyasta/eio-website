@@ -356,9 +356,20 @@
     };
 
     function renderDashboard() {
-      const completions = userData.completions || [];
+      const rawCompletions = userData.completions || [];
+
+      // Build legit diff lookup
+      const legitDiffMap = {};
+      rawCompletions.forEach(c => {
+        if (!c.isAllJump && c.towerName && c.difficulty)
+          legitDiffMap[c.towerName.toLowerCase()] = c.difficulty;
+      });
+      // Resolve un-legit difficulty
+      const completions = rawCompletions.map(c =>
+        c.isAllJump ? { ...c, difficulty: legitDiffMap[c.towerName?.toLowerCase()] || c.difficulty } : c
+      );
+
       document.getElementById('welcome-title').textContent = `HEY, ${(userData.displayName || userData.robloxUsername)?.toUpperCase()}!`;
-      // Show avatar in nav
       const navChar = document.getElementById('nav-avatar-char');
       if (navChar) navChar.textContent = (userData.displayName || userData.robloxUsername || '?')[0].toUpperCase();
       document.getElementById('stat-roblox').textContent = userData.robloxUsername;

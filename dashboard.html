@@ -399,7 +399,7 @@
       tbody.innerHTML = sorted.map((c, i) => {
         const dClass = diffClass[c.difficulty] || 'diff-default';
         const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';
-        const gameLabel = c.game ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:6px;">${c.game.toUpperCase()}</span>` : '';
+        const gameLabel = (c.game && c.game !== 'etoh') ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:6px;">${c.game.toUpperCase()}</span>` : '';
         const unlegit = c.isAllJump ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#CE1126;color:#fff;border-radius:3px;margin-left:6px;">UN-LEGIT</span>` : '';
         return `
           <tr>

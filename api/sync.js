@@ -118,29 +118,43 @@ export default async function handler(req, res) {
       badges.forEach(b => { badgeLookup[b.id] = { ...b, gameKey }; });
     }
 
-    // Step 6: Build completions
-    const seen = new Set();
-    const completions = [];
+    // Step 6: Build completions - first pass to get all legit difficulties
+    const legitDiffByName = {}; // gameKey:towerName -> difficulty
 
+    const allParsed = [];
     for (const [badgeId, awardedDate] of ownedMap) {
       const badge = badgeLookup[badgeId];
       if (!badge) continue;
-
       const rawName = badge.displayName || badge.name || '';
       const parsed = parseBadgeName(rawName, badge.gameKey);
       if (!parsed) continue;
+      const diff = getDifficulty(badge, badge.gameKey, parsed.name);
+      // Store legit difficulty
+      if (!parsed.isAllJump && diff !== 'Unknown') {
+        legitDiffByName[`${badge.gameKey}:${parsed.name.toLowerCase()}`] = diff;
+      }
+      allParsed.push({ badge, parsed, awardedDate, badgeId, diff });
+    }
 
+    // Second pass: build completions, all-jump inherits legit difficulty
+    const seen = new Set();
+    const completions = [];
+
+    for (const { badge, parsed, awardedDate, badgeId, diff } of allParsed) {
       const { name, isAllJump } = parsed;
       const dedupeKey = `${badge.gameKey}:${name.toLowerCase()}:${isAllJump}`;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
 
-      const difficulty = getDifficulty(badge, badge.gameKey, name);
+      // All-jump: try to inherit difficulty from legit version
+      const resolvedDiff = isAllJump
+        ? (legitDiffByName[`${badge.gameKey}:${name.toLowerCase()}`] || diff)
+        : diff;
 
       completions.push({
         towerName: name,
-        difficulty,
-        game: badge.gameKey,         // 'etoh' | 'tea' | 'cscd'
+        difficulty: resolvedDiff,
+        game: badge.gameKey,
         isAllJump: isAllJump || false,
         completedAt: awardedDate || new Date().toISOString(),
         badgeId

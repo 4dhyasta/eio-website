@@ -261,7 +261,7 @@
           }
           tbody.innerHTML = list.map((c, i) => {
             const dClass = diffClass[c.difficulty] || 'diff-default';
-            const gameLabel = c.game ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:5px;">${c.game.toUpperCase()}</span>` : '';
+            const gameLabel = (c.game && c.game !== 'etoh') ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:5px;">${c.game.toUpperCase()}</span>` : '';
             const unlegit = c.isAllJump ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#CE1126;color:#fff;border-radius:3px;margin-left:5px;">UN-LEGIT</span>` : '';
             const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';
             return `<tr>

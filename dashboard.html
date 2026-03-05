@@ -215,11 +215,12 @@
 
     <div class="section-header">
       <h2 class="section-title" data-id="section-title">COMPLETION LIST</h2>
-      <div style="display:flex;gap:0.4rem;align-items:center;">
+      <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
         <button class="dash-game-btn active" id="dgf-all" onclick="filterDashGame('all')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">All</button>
         <button class="dash-game-btn" id="dgf-etoh" onclick="filterDashGame('etoh')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">EToH</button>
         <button class="dash-game-btn" id="dgf-tea" onclick="filterDashGame('tea')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">TEA</button>
         <button class="dash-game-btn" id="dgf-cscd" onclick="filterDashGame('cscd')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">CSCD</button>
+        <button class="dash-game-btn" id="dgf-alljump" onclick="filterDashGame('alljump')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">All Jump</button>
         <button class="add-completion-btn" data-id="add-btn" id="add-manual-btn" onclick="openModal()" style="display:none;">+ Tambah Manual</button>
       </div>
     </div>
@@ -401,7 +402,12 @@
         return;
       }
 
-      const filtered = _dashGame === 'all' ? completions : completions.filter(c => (c.game||'etoh').split('+').includes(_dashGame));
+      const filtered = (() => {
+        if (_dashGame === 'alljump') return completions.filter(c => c.isAllJump);
+        const base = completions.filter(c => !c.isAllJump);
+        if (_dashGame === 'all') return base;
+        return base.filter(c => (c.game||'etoh').split('+').includes(_dashGame));
+      })();
       const sorted = [...filtered].sort((a, b) => (((b.diffNum || 0) > 0) ? (b.diffNum) : (DIFF_ORDER[b.difficulty] || 0)) - (((a.diffNum || 0) > 0) ? (a.diffNum) : (DIFF_ORDER[a.difficulty] || 0)));
       tbody.innerHTML = sorted.map((c, i) => {
         const dClass = diffClass[c.difficulty] || 'diff-default';

@@ -257,7 +257,12 @@
         };
         window.renderProfileCompletions = function() {
           const g = window._profileGame;
-          const list = g === 'all' ? window._profileCompletions : window._profileCompletions.filter(c => (c.game||'etoh').split('+').includes(g));
+          const list = (() => {
+            if (g === 'alljump') return window._profileCompletions.filter(c => c.isAllJump);
+            const base = window._profileCompletions.filter(c => !c.isAllJump);
+            if (g === 'all') return base;
+            return base.filter(c => (c.game||'etoh').split('+').includes(g));
+          })();
           const tbody = document.getElementById('comp-tbody');
           if (!list.length) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted)">Belum ada completion</td></tr>`;
@@ -320,6 +325,7 @@
               <button class="profile-game-btn" id="pgf-etoh" onclick="filterProfileGame('etoh')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">EToH</button>
               <button class="profile-game-btn" id="pgf-tea" onclick="filterProfileGame('tea')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">TEA</button>
               <button class="profile-game-btn" id="pgf-cscd" onclick="filterProfileGame('cscd')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">CSCD</button>
+              <button class="profile-game-btn" id="pgf-alljump" onclick="filterProfileGame('alljump')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">All Jump</button>
             </div>
           </div>
           <table class="comp-table">

@@ -335,6 +335,7 @@
         let hardest = null;
         let hardestOrder = -1;
         resolved.forEach(c => {
+          if (c.isAllJump) return; // all jump never counts as hardest
           const o = (((c.diffNum || 0) > 0) ? (c.diffNum) : (DIFF_ORDER[c.difficulty] || 0));
           if (o > hardestOrder) { hardestOrder = o; hardest = c; }
         });

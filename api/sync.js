@@ -1,16 +1,10 @@
 import { TOWER_DB } from './towerdb.js';
 
 const GAMES = {
-  etoh: { name: 'EToH', placeId: 8562822414, universeId: 3264581003 },
-  tea:  { name: 'TEA',  placeId: 15873244701, universeId: null },
-  cscd: { name: 'CSCD', placeId: 10283991824, universeId: null },
+  etoh: { name: 'EToH', placeId: 8562822414,  universeId: 3264581003 },
+  tea:  { name: 'TEA',  placeId: 15873244701, universeId: 5488708927 },
+  cscd: { name: 'CSCD', placeId: 10283991824, universeId: 3762953501 },
 };
-
-async function getUniverseId(placeId) {
-  const r = await fetch(`https://apis.roblox.com/universes/v1/places/${placeId}/universe`);
-  const d = await r.json();
-  return d.universeId;
-}
 
 async function getGameBadges(universeId) {
   let all = [], cursor = '';
@@ -101,15 +95,7 @@ export default async function handler(req, res) {
     const userId = userJson.data?.[0]?.id;
     if (!userId) return res.status(404).json({ error: 'Roblox user not found' });
 
-    // Step 2: Resolve universe IDs for TEA & CSCD
-    const [teaUniverseId, cscdUniverseId] = await Promise.all([
-      getUniverseId(GAMES.tea.placeId),
-      getUniverseId(GAMES.cscd.placeId),
-    ]);
-    GAMES.tea.universeId = teaUniverseId;
-    GAMES.cscd.universeId = cscdUniverseId;
-
-    // Step 3: Fetch all badges for all 3 games
+    // Step 3: Fetch all badges for all 3 games in parallel
     const [etohBadges, teaBadges, cscdBadges] = await Promise.all([
       getGameBadges(GAMES.etoh.universeId),
       getGameBadges(GAMES.tea.universeId),

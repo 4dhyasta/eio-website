@@ -82,6 +82,7 @@
     .stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-top: 0.3rem; }
 
     /* COMPLETIONS */
+    .profile-game-btn.active { background: #CE1126; color: #fff; border-color: #CE1126; }
     .section-title { font-size: 1.1rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 1.2rem; }
     .comp-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); }
     .comp-table th { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border); background: var(--off-white); }
@@ -227,22 +228,42 @@
           ? `<img class="avatar-img" src="${data.avatarUrl}" alt="${displayName}">`
           : `<div class="avatar-default">${displayName[0]?.toUpperCase() || '?'}</div>`;
 
-        // Hardest
+        // Hardest (exclude all jump)
         const hardestHtml = hardest
           ? `<div style="font-size:1.2rem;font-weight:700;margin-top:0.3rem">${hardest.towerName}</div>
              <span class="diff-badge ${diffClass[hardest.difficulty]||'diff-default'}" style="margin-top:0.4rem;display:inline-block">${hardest.difficulty}</span>`
           : `<div style="font-size:1.1rem;font-weight:600;color:var(--text-muted)">—</div>`;
 
-        // Completions table
-        const rowsHtml = sorted.length > 0
-          ? sorted.map((c, i) => `
-            <tr>
+        // Game filter function
+        window._profileGame = 'all';
+        window._profileCompletions = sorted;
+        window.filterProfileGame = function(g) {
+          window._profileGame = g;
+          document.querySelectorAll('.profile-game-btn').forEach(b => b.classList.remove('active'));
+          document.getElementById('pgf-'+g).classList.add('active');
+          window.renderProfileCompletions();
+        };
+        window.renderProfileCompletions = function() {
+          const g = window._profileGame;
+          const list = g === 'all' ? window._profileCompletions : window._profileCompletions.filter(c => (c.game||'etoh') === g);
+          const tbody = document.getElementById('comp-tbody');
+          if (!list.length) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted)">Belum ada completion</td></tr>`;
+            return;
+          }
+          tbody.innerHTML = list.map((c, i) => {
+            const dClass = diffClass[c.difficulty] || 'diff-default';
+            const gameLabel = c.game ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:5px;">${c.game.toUpperCase()}</span>` : '';
+            const unlegit = c.isAllJump ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 5px;background:#CE1126;color:#fff;border-radius:3px;margin-left:5px;">UN-LEGIT</span>` : '';
+            const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';
+            return `<tr>
               <td style="color:var(--text-muted);font-size:0.8rem">${i+1}</td>
-              <td style="font-weight:600">${c.towerName}</td>
-              <td><span class="diff-badge ${diffClass[c.difficulty]||'diff-default'}">${c.difficulty}</span></td>
-              <td style="font-size:0.75rem;color:var(--text-muted)">${c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—'}</td>
-            </tr>`).join('')
-          : `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted)"><span data-static="Belum ada completion|No completions yet">Belum ada completion</span></td></tr>`;
+              <td style="font-weight:600">${c.towerName}${gameLabel}${unlegit}</td>
+              <td><span class="diff-badge ${dClass}">${c.difficulty}</span></td>
+              <td style="font-size:0.75rem;color:var(--text-muted)">${date}</td>
+            </tr>`;
+          }).join('');
+        };
 
         main.innerHTML = `
           <div class="profile-hero">
@@ -277,16 +298,30 @@
             </div>
           </div>
 
-          <h2 class="section-title"><span data-static="COMPLETION LIST|COMPLETION LIST">COMPLETION LIST</span></h2>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+            <h2 class="section-title" style="margin-bottom:0"><span data-static="COMPLETION LIST|COMPLETION LIST">COMPLETION LIST</span></h2>
+            <div style="display:flex;gap:0.4rem;">
+              <button class="profile-game-btn active" id="pgf-all" onclick="filterProfileGame('all')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">All</button>
+              <button class="profile-game-btn" id="pgf-etoh" onclick="filterProfileGame('etoh')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">EToH</button>
+              <button class="profile-game-btn" id="pgf-tea" onclick="filterProfileGame('tea')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">TEA</button>
+              <button class="profile-game-btn" id="pgf-cscd" onclick="filterProfileGame('cscd')" style="font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.35rem 0.8rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">CSCD</button>
+            </div>
+          </div>
           <table class="comp-table">
             <thead>
-              <tr>
-                <th>#</th><th><span data-static="Tower|Tower">Tower</span></th><th>Difficulty</th><th><span data-static="Tanggal|Date">Tanggal</span></th>
-              </tr>
+              <tr><th>#</th><th><span data-static="Tower|Tower">Tower</span></th><th>Difficulty</th><th><span data-static="Tanggal|Date">Tanggal</span></th></tr>
             </thead>
-            <tbody>${rowsHtml}</tbody>
+            <tbody id="comp-tbody"></tbody>
           </table>
         `;
+
+        // Add active style for game filter buttons
+        document.querySelectorAll('.profile-game-btn').forEach(b => {
+          b.addEventListener('mouseenter', () => { if (!b.classList.contains('active')) b.style.borderColor = '#CE1126'; });
+          b.addEventListener('mouseleave', () => { if (!b.classList.contains('active')) b.style.borderColor = '#E2E2E2'; });
+        });
+
+        window.renderProfileCompletions();
 
       } catch(e) {
         document.getElementById('main-content').innerHTML = `

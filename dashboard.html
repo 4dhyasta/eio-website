@@ -212,7 +212,13 @@
 
     <div class="section-header">
       <h2 class="section-title" data-id="section-title">COMPLETION LIST</h2>
-      <button class="add-completion-btn" data-id="add-btn" onclick="openModal()">+ Tambah Manual</button>
+      <div style="display:flex;gap:0.4rem;align-items:center;">
+        <button class="dash-game-btn active" id="dgf-all" onclick="filterDashGame('all')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">All</button>
+        <button class="dash-game-btn" id="dgf-etoh" onclick="filterDashGame('etoh')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">EToH</button>
+        <button class="dash-game-btn" id="dgf-tea" onclick="filterDashGame('tea')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">TEA</button>
+        <button class="dash-game-btn" id="dgf-cscd" onclick="filterDashGame('cscd')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">CSCD</button>
+        <button class="add-completion-btn" data-id="add-btn" onclick="openModal()">+ Tambah Manual</button>
+      </div>
     </div>
 
     <table class="completions-table">
@@ -340,6 +346,15 @@
       }
     });
 
+    let _dashGame = 'all';
+    window.filterDashGame = function(g) {
+      _dashGame = g;
+      document.querySelectorAll('.dash-game-btn').forEach(b => { b.classList.remove('active'); b.style.background='transparent'; b.style.color=''; b.style.borderColor='#E2E2E2'; });
+      const btn = document.getElementById('dgf-'+g);
+      if (btn) { btn.classList.add('active'); btn.style.background='#CE1126'; btn.style.color='#fff'; btn.style.borderColor='#CE1126'; }
+      renderDashboard();
+    };
+
     function renderDashboard() {
       const completions = userData.completions || [];
       document.getElementById('welcome-title').textContent = `HEY, ${(userData.displayName || userData.robloxUsername)?.toUpperCase()}!`;
@@ -368,7 +383,8 @@
         return;
       }
 
-      const sorted = [...completions].sort((a, b) => (diffOrder[b.difficulty] || 0) - (diffOrder[a.difficulty] || 0));
+      const filtered = _dashGame === 'all' ? completions : completions.filter(c => (c.game||'etoh') === _dashGame);
+      const sorted = [...filtered].sort((a, b) => (diffOrder[b.difficulty] || 0) - (diffOrder[a.difficulty] || 0));
       tbody.innerHTML = sorted.map((c, i) => {
         const dClass = diffClass[c.difficulty] || 'diff-default';
         const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';

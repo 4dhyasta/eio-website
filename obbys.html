@@ -327,10 +327,13 @@
       snap.forEach(docSnap => {
         const data = docSnap.data();
         (data.completions || []).forEach(c => {
-          const key = c.towerName?.toLowerCase().trim();
-          if (!key) return;
-          if (!towerMap[key]) towerMap[key] = { towerName: c.towerName, difficulty: c.difficulty, players: [] };
-          towerMap[key].players.push(data.robloxUsername || '?');
+          if (!c.towerName) return;
+          if (c.isAllJump) return; // exclude all jump from obby list
+          const game = c.game || 'etoh';
+          const key = (c.towerName?.toLowerCase().trim()) + ':' + game;
+          if (!towerMap[key]) towerMap[key] = { towerName: c.towerName, difficulty: c.difficulty, game, players: [] };
+          const uname = data.robloxUsername || data.displayName || '?';
+          if (!towerMap[key].players.includes(uname)) towerMap[key].players.push(uname);
         });
       });
       allObbys = Object.values(towerMap);
@@ -347,6 +350,9 @@
     window.renderObbys = () => {
       const query = document.getElementById('search-input').value.toLowerCase();
       let filtered = allObbys.filter(o => o.towerName.toLowerCase().includes(query));
+
+      // Game filter
+      if (currentGame !== 'all') filtered = filtered.filter(o => (o.game || 'etoh') === currentGame);
 
       if (currentSort === 'difficulty') filtered.sort((a, b) => (diffOrder[b.difficulty]||0) - (diffOrder[a.difficulty]||0));
       else if (currentSort === 'beat') filtered.sort((a, b) => b.players.length - a.players.length);

@@ -409,13 +409,13 @@
         const isNonCanon = nonCanonDiffs.includes(c.difficulty);
         const canonBadge = `<span class="${isNonCanon ? 'noncanon-badge' : 'canon-badge'}">${isNonCanon ? 'NON-CANON' : 'CANON'}</span>`;
         const date = c.completedAt ? new Date(c.completedAt).toLocaleDateString('id-ID') : '—';
-        const gameLabel = (() => { if (!c.game) return ''; const games = c.game.split('+').filter(g => g !== 'etoh'); return games.map(g => `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:4px;">${g.toUpperCase()}</span>`).join(''); })();
+        const gameLabel = (() => { if (!c.game) return ''; const games = c.game.split('+'); return games.map(g => `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-left:4px;">${g.toUpperCase()}</span>`).join(''); })();
         const unlegit = c.isAllJump ? `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#CE1126;color:#fff;border-radius:3px;margin-left:6px;">UN-LEGIT</span>` : '';
         return `
           <tr>
             <td style="font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--muted)">${i+1}</td>
             <td style="font-weight:600">${c.towerName}${gameLabel}${unlegit}</td>
-            <td><span class="diff-badge ${dClass}">${c.difficulty}</span></td>
+            <td><span class="diff-badge ${dClass}">${c.difficulty}</span>${(c.diffNum && c.diffNum > 0) ? `<span style="font-size:0.7rem;color:#999;margin-left:4px;font-family:'DM Mono',monospace;">${c.diffNum.toFixed(2)}</span>` : ''}${canonBadge}</td>
             <td style="font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted)">${date}</td>
           </tr>
         `;

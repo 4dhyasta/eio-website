@@ -414,7 +414,7 @@
               </div>
             </td>
             <td>
-              ${hardestDiff ? `<span class="diff-badge ${dClass}">${hardestDiff}</span>` : ''}
+              ${hardestDiff ? `<span class="diff-badge ${dClass}">${hardestDiff}</span>${(p.hardest?.diffNum && p.hardest.diffNum > 0) ? `<span style="font-size:0.7rem;color:var(--text-muted);margin-left:4px;font-family:'DM Mono',monospace;">${p.hardest.diffNum.toFixed(2)}</span>` : ""}` : ""}
               <div style="font-size:0.85rem; margin-top:0.3rem; color:var(--text-muted)">${hardestName}</div>
             </td>
             <td><span class="completion-count">${p.completions.length}</span></td>

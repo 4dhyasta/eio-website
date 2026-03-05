@@ -1,4 +1,4 @@
-import { TOWER_DB, TEA_NAME_DB } from './towerdb.js';
+import { TOWER_DB, TEA_NAME_DB, CSCD_NAME_DB } from './towerdb.js';
 
 const GAMES = {
   etoh: { name: 'EToH', placeId: 8562822414,  universeId: 3264581003 },
@@ -69,6 +69,12 @@ function getDifficultyInfo(badge, gameKey, towerName) {
   if (gameKey === 'tea' && towerName) {
     const entry = TEA_NAME_DB[towerName.toLowerCase()];
     if (entry) return { difficulty: entry, diffNum: 0 };
+  }
+
+  // CSCD: use name-based db
+  if (gameKey === 'cscd' && towerName) {
+    const entry = CSCD_NAME_DB[towerName.toLowerCase()];
+    if (entry) return { difficulty: entry.difficulty, diffNum: entry.diffNum };
   }
 
   // Fallback: keyword search in badge name/description

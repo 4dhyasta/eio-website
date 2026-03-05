@@ -384,8 +384,8 @@
         const iconBg = iconColors[o.difficulty] || '#888';
         const games = (o.game || 'etoh').split('+');
         const gameLabel = games.map(g => `<span style="font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:2px 6px;background:#f0f0f0;color:#555;border-radius:3px;margin-right:2px;">${g.toUpperCase()}</span>`).join('');
-        const shownPlayers = o.players.slice(0, 5);
-        const extra = o.players.length - 5;
+        const shownPlayers = o.players;
+
         return `
           <tr>
             <td class="rank-cell ${rankClass}">${i + 1}</td>
@@ -399,7 +399,6 @@
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:0.35rem;align-items:center;">
                 ${shownPlayers.map(p => `<span class="player-tag">${p}</span>`).join('')}
-                ${extra > 0 ? `<span class="player-tag player-tag-more">+${extra} lagi</span>` : ''}
               </div>
             </td>
             <td><div style="display:flex;flex-direction:column;gap:3px;"><div style="display:flex;align-items:center;gap:5px;"><span class="diff-badge ${dClass}">${o.difficulty || '—'}</span>${(o.diffNum && o.diffNum > 0) ? `<span style="font-size:0.7rem;color:#999;font-family:'DM Mono',monospace;">${o.diffNum.toFixed(2)}</span>` : ''}</div><div>${canonBadge}</div></div></td>

@@ -368,7 +368,10 @@
       let filtered = allPlayers.filter(p => p.username.toLowerCase().includes(query));
 
       if (currentSort === 'difficulty') {
-        filtered.sort((a, b) => b.hardestOrder - a.hardestOrder);
+        filtered.sort((a, b) => {
+          if (b.hardestOrder !== a.hardestOrder) return b.hardestOrder - a.hardestOrder;
+          return b.completions.filter(c => !c.isAllJump).length - a.completions.filter(c => !c.isAllJump).length;
+        });
       } else {
         filtered.sort((a, b) => a.username.localeCompare(b.username));
       }

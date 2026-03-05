@@ -461,23 +461,19 @@
           return;
         }
 
-        // Merge with existing, skip duplicates by badgeId or towerName
-        const existingBadgeIds = new Set((userData.completions || []).map(c => c.badgeId).filter(Boolean));
-        const existingNames = new Set((userData.completions || []).map(c => c.towerName.toLowerCase()));
-        
-        const newCompletions = syncData.completions.filter(c => 
-          !existingBadgeIds.has(c.badgeId) && !existingNames.has(c.towerName.toLowerCase())
-        );
+        // Keep manual completions, replace all badge-synced ones
+        const manualComps = (userData.completions || []).filter(c => !c.badgeId);
+        const syncedNames = new Set(syncData.completions.map(c => c.towerName.toLowerCase()));
+        const manualToKeep = manualComps.filter(c => !syncedNames.has(c.towerName.toLowerCase()));
+        const allCompletions = [...syncData.completions, ...manualToKeep];
 
-        if (newCompletions.length > 0) {
-          const allCompletions = [...(userData.completions || []), ...newCompletions];
-          await updateDoc(doc(db, 'users', currentUser.uid), { completions: allCompletions });
-          userData.completions = allCompletions;
-          renderDashboard();
-          msg.textContent = `Sync selesai! ${newCompletions.length} completion baru dari ${syncData.total} badge EToH.`;
-        } else {
-          msg.textContent = `Sync selesai! Semua ${syncData.total} badge sudah tercatat.`;
-        }
+        const prevCount = (userData.completions || []).filter(c => c.badgeId).length;
+        const added = Math.max(0, syncData.completions.length - prevCount);
+
+        await updateDoc(doc(db, 'users', currentUser.uid), { completions: allCompletions });
+        userData.completions = allCompletions;
+        renderDashboard();
+        msg.textContent = `Sync selesai! ${added} completion baru dari ${syncData.total} badge.`;
         msg.className = 'sync-msg success';
 
       } catch(e) {

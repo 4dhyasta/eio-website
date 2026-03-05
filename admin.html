@@ -418,25 +418,26 @@
       });
       const syncData = await syncRes.json();
       if (syncData.error) throw new Error(syncData.error);
-      if (!syncData.completions?.length) return { added: 0, total: 0 };
 
       const u = allUsers.find(u => u.id === uid);
       const existing = u?.completions || [];
-      const existingNames = new Set(existing.map(c => c.towerName.toLowerCase()));
-      const existingBadgeIds = new Set(existing.map(c => c.badgeId).filter(Boolean));
-      const newComps = syncData.completions.filter(c =>
-        !existingBadgeIds.has(c.badgeId) && !existingNames.has(c.towerName.toLowerCase())
-      );
 
-      // Always update ALL completions to refresh diffNum on existing ones
-      const mergedMap = {};
-      for (const c of existing) mergedMap[c.towerName.toLowerCase()] = c;
-      for (const c of syncData.completions) mergedMap[c.towerName.toLowerCase()] = c;
-      const merged = Object.values(mergedMap);
+      // Keep only manual completions (no badgeId) from existing
+      const manualComps = existing.filter(c => !c.badgeId);
+
+      // New completions = all from sync + manual ones not conflicting by name
+      const syncedNames = new Set((syncData.completions || []).map(c => c.towerName.toLowerCase()));
+      const manualToKeep = manualComps.filter(c => !syncedNames.has(c.towerName.toLowerCase()));
+
+      const merged = [...(syncData.completions || []), ...manualToKeep];
+
+      const prevCount = existing.filter(c => c.badgeId).length;
+      const newCount = (syncData.completions || []).length;
+      const added = Math.max(0, newCount - prevCount);
 
       await updateDoc(doc(db, 'users', uid), { completions: merged });
       if (u) u.completions = merged;
-      return { added: newComps.length, total: syncData.total };
+      return { added, total: syncData.total };
     }
 
     window.syncUser = async (uid, robloxUsername) => {

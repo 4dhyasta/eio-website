@@ -140,6 +140,10 @@
 
     <!-- MEMBERS TAB -->
     <div id="tab-members">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+        <button id="sync-all-btn" onclick="syncAllUsers()" style="font-size:0.75rem;font-weight:700;letter-spacing:1px;padding:0.5rem 1.2rem;background:#CE1126;color:#fff;border:none;cursor:pointer;">⟳ SYNC SEMUA USER</button>
+      </div>
+      <div id="sync-all-log" style="display:none;background:#f8f8f8;border:1px solid #eee;padding:1rem;margin-bottom:1rem;font-size:0.75rem;font-family:'DM Mono',monospace;max-height:200px;overflow-y:auto;"></div>
       <div id="members-list"><div class="loading">Memuat data members...</div></div>
     </div>
 
@@ -272,6 +276,7 @@
               </div>
               <div class="card-actions">
                 <button class="btn-add-comp" onclick="openModal('${u.id}', '${u.robloxUsername}')">+ Tambah Completion</button>
+                <button id="sync-btn-${u.id}" class="btn-add-comp" style="background:#1a1a1a;color:#fff;" onclick="syncUser('${u.id}', '${u.robloxUsername}')">⟳ Sync</button>
                 <button class="btn-toggle-admin ${u.isAdmin ? 'is-admin' : ''}" onclick="toggleAdmin('${u.id}', ${u.isAdmin})">${u.isAdmin ? '✓ Admin' : (localStorage.getItem('eio-lang')==='en'?'Make Admin':'Jadikan Admin')}</button>
                 ${completions.length > 0 ? `<button class="btn-delete" style="padding:0.35rem 0.8rem;" onclick="deleteAllCompletions('${u.id}', '${u.robloxUsername}')">🗑 Hapus Semua</button>` : ''}
               </div>
@@ -403,6 +408,79 @@
         renderMembers();
         renderAdmins();
       } catch(e) { alert('Gagal: ' + e.message); }
+    };
+
+    async function doSyncUser(uid, robloxUsername) {
+      const syncRes = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: robloxUsername })
+      });
+      const syncData = await syncRes.json();
+      if (syncData.error) throw new Error(syncData.error);
+      if (!syncData.completions?.length) return { added: 0, total: 0 };
+
+      const u = allUsers.find(u => u.id === uid);
+      const existing = u?.completions || [];
+      const existingNames = new Set(existing.map(c => c.towerName.toLowerCase()));
+      const existingBadgeIds = new Set(existing.map(c => c.badgeId).filter(Boolean));
+      const newComps = syncData.completions.filter(c =>
+        !existingBadgeIds.has(c.badgeId) && !existingNames.has(c.towerName.toLowerCase())
+      );
+
+      // Always update ALL completions to refresh diffNum on existing ones
+      const mergedMap = {};
+      for (const c of existing) mergedMap[c.towerName.toLowerCase()] = c;
+      for (const c of syncData.completions) mergedMap[c.towerName.toLowerCase()] = c;
+      const merged = Object.values(mergedMap);
+
+      await updateDoc(doc(db, 'users', uid), { completions: merged });
+      if (u) u.completions = merged;
+      return { added: newComps.length, total: syncData.total };
+    }
+
+    window.syncUser = async (uid, robloxUsername) => {
+      const btn = document.getElementById(`sync-btn-${uid}`);
+      if (btn) { btn.disabled = true; btn.textContent = '⟳ Syncing...'; }
+      try {
+        const { added, total } = await doSyncUser(uid, robloxUsername);
+        renderMembers();
+        if (btn) { btn.textContent = `✓ Done (+${added})`; }
+        setTimeout(() => { if (btn) { btn.disabled = false; btn.textContent = '⟳ Sync'; } }, 3000);
+      } catch(e) {
+        if (btn) { btn.disabled = false; btn.textContent = '⟳ Sync'; }
+        alert('Gagal sync ' + robloxUsername + ': ' + e.message);
+      }
+    };
+
+    window.syncAllUsers = async () => {
+      const btn = document.getElementById('sync-all-btn');
+      const log = document.getElementById('sync-all-log');
+      btn.disabled = true;
+      btn.textContent = '⟳ Syncing...';
+      log.style.display = 'block';
+      log.innerHTML = '';
+
+      const usersToSync = allUsers.filter(u => u.robloxUsername);
+      let done = 0;
+      for (const u of usersToSync) {
+        log.innerHTML += `[${done+1}/${usersToSync.length}] Syncing ${u.robloxUsername}...<br>`;
+        log.scrollTop = log.scrollHeight;
+        try {
+          const { added, total } = await doSyncUser(u.id, u.robloxUsername);
+          log.innerHTML += `&nbsp;&nbsp;✓ Done: +${added} baru, total ${total} badges<br>`;
+        } catch(e) {
+          log.innerHTML += `&nbsp;&nbsp;✗ Gagal: ${e.message}<br>`;
+        }
+        done++;
+        log.scrollTop = log.scrollHeight;
+        await new Promise(r => setTimeout(r, 500)); // small delay between requests
+      }
+
+      renderMembers();
+      log.innerHTML += `<br><strong>Selesai! ${done} user di-sync.</strong>`;
+      btn.disabled = false;
+      btn.textContent = '⟳ SYNC SEMUA USER';
     };
 
     window.doLogout = async () => { await signOut(auth); window.location.href = 'index.html'; };

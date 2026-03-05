@@ -386,6 +386,7 @@
         const joined = p.joinedAt ? new Date(p.joinedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short' }) : '—';
         const hardestName = p.hardest ? p.hardest.towerName : '—';
         const hardestDiff = p.hardest ? p.hardest.difficulty : null;
+        const hardestDiffNum = p.hardest?.diffNum || 0;
         const dClass = hardestDiff ? (diffClass[hardestDiff] || 'diff-default') : 'diff-default';
 
         const iconColors = {

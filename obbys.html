@@ -327,10 +327,14 @@
         const data = docSnap.data();
         (data.completions || []).forEach(c => {
           if (!c.towerName) return;
-          if (c.isAllJump) return; // exclude all jump from obby list
+          if (c.isAllJump) return;
           const game = c.game || 'etoh';
           const key = (c.towerName?.toLowerCase().trim()) + ':' + game;
-          if (!towerMap[key]) towerMap[key] = { towerName: c.towerName, difficulty: c.difficulty, game, players: [] };
+          if (!towerMap[key]) {
+            towerMap[key] = { towerName: c.towerName, difficulty: c.difficulty, diffNum: c.diffNum || 0, game, players: [] };
+          } else if ((c.diffNum || 0) > (towerMap[key].diffNum || 0)) {
+            towerMap[key].diffNum = c.diffNum;
+          }
           const uname = data.robloxUsername || data.displayName || '?';
           if (!towerMap[key].players.includes(uname)) towerMap[key].players.push(uname);
         });

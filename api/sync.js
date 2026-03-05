@@ -58,26 +58,26 @@ function parseBadgeName(rawName, gameKey) {
   return { name, isAllJump };
 }
 
-function getDifficulty(badge, gameKey, towerName) {
+function getDifficultyInfo(badge, gameKey, towerName) {
   // EToH: use accurate badge ID db
   if (gameKey === 'etoh') {
     const dbEntry = TOWER_DB[badge.id];
-    if (dbEntry) return dbEntry.difficulty;
+    if (dbEntry) return { difficulty: dbEntry.difficulty, diffNum: dbEntry.diffNum || 0 };
   }
 
   // TEA: use name-based db
   if (gameKey === 'tea' && towerName) {
     const entry = TEA_NAME_DB[towerName.toLowerCase()];
-    if (entry) return entry;
+    if (entry) return { difficulty: entry, diffNum: 0 };
   }
 
   // Fallback: keyword search in badge name/description
   const searchIn = ((badge.description || '') + ' ' + (badge.displayName || '') + ' ' + (badge.name || '')).toLowerCase();
   for (const d of DIFF_KEYWORDS) {
     const regex = new RegExp('\\b' + d.toLowerCase() + '\\b');
-    if (regex.test(searchIn)) return d;
+    if (regex.test(searchIn)) return { difficulty: d, diffNum: 0 };
   }
-  return 'Unknown';
+  return { difficulty: 'Unknown', diffNum: 0 };
 }
 
 export default async function handler(req, res) {
@@ -128,42 +128,48 @@ export default async function handler(req, res) {
       const rawName = badge.displayName || badge.name || '';
       const parsed = parseBadgeName(rawName, badge.gameKey);
       if (!parsed) continue;
-      const diff = getDifficulty(badge, badge.gameKey, parsed.name);
+      const diffInfo = getDifficultyInfo(badge, badge.gameKey, parsed.name);
+      const diff = diffInfo.difficulty;
+      const diffNum = diffInfo.diffNum;
       // Store legit difficulty
       if (!parsed.isAllJump && diff !== 'Unknown') {
-        legitDiffByName[`${badge.gameKey}:${parsed.name.toLowerCase()}`] = diff;
+        legitDiffByName[`${badge.gameKey}:${parsed.name.toLowerCase()}`] = { difficulty: diff, diffNum };
       }
-      allParsed.push({ badge, parsed, awardedDate, badgeId, diff });
+      allParsed.push({ badge, parsed, awardedDate, badgeId, diff, diffNum });
     }
 
     // Second pass: build completions, merge same tower across games
     const towerMap = new Map(); // towerName_lower:isAllJump -> completion entry
     const seenPerGame = new Set(); // gameKey:name:isAllJump dedup
 
-    for (const { badge, parsed, awardedDate, badgeId, diff } of allParsed) {
+    for (const { badge, parsed, awardedDate, badgeId, diff, diffNum } of allParsed) {
       const { name, isAllJump } = parsed;
       const gameKey = badge.gameKey;
       const perGameKey = `${gameKey}:${name.toLowerCase()}:${isAllJump}`;
       if (seenPerGame.has(perGameKey)) continue;
       seenPerGame.add(perGameKey);
 
-      const resolvedDiff = isAllJump
-        ? (legitDiffByName[`${gameKey}:${name.toLowerCase()}`] || diff)
-        : diff;
+      const legitInfo = legitDiffByName[`${gameKey}:${name.toLowerCase()}`];
+      const resolvedDiff = isAllJump ? (legitInfo?.difficulty || diff) : diff;
+      const resolvedDiffNum = isAllJump ? (legitInfo?.diffNum || diffNum) : diffNum;
 
+      const DIFF_ORDER = ['Easy','Medium','Hard','Difficult','Challenging','Intense','Remorseless','Insane','Extreme','Terrifying','Catastrophic','Horrific','Unreal','Nil'];
       const mergeKey = `${name.toLowerCase()}:${isAllJump}`;
       if (towerMap.has(mergeKey)) {
-        // Already exists - just add game if not already there
         const existing = towerMap.get(mergeKey);
         if (!existing.games.includes(gameKey)) existing.games.push(gameKey);
-        // Use highest difficulty
-        const existOrder = ['Easy','Medium','Hard','Difficult','Challenging','Intense','Remorseless','Insane','Extreme','Terrifying','Catastrophic','Horrific','Unreal','Nil'].indexOf(existing.difficulty);
-        const newOrder = ['Easy','Medium','Hard','Difficult','Challenging','Intense','Remorseless','Insane','Extreme','Terrifying','Catastrophic','Horrific','Unreal','Nil'].indexOf(resolvedDiff);
-        if (newOrder > existOrder) existing.difficulty = resolvedDiff;
+        // Use highest diffNum, fallback to diffOrder index
+        const existScore = existing.diffNum || DIFF_ORDER.indexOf(existing.difficulty);
+        const newScore = resolvedDiffNum || DIFF_ORDER.indexOf(resolvedDiff);
+        if (newScore > existScore) {
+          existing.difficulty = resolvedDiff;
+          existing.diffNum = resolvedDiffNum;
+        }
       } else {
         towerMap.set(mergeKey, {
           towerName: name,
           difficulty: resolvedDiff,
+          diffNum: resolvedDiffNum,
           games: [gameKey],
           isAllJump: isAllJump || false,
           completedAt: awardedDate || new Date().toISOString(),

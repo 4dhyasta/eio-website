@@ -289,6 +289,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const DIFF_ORDER = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13,'Nil':14};
     const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13,'Nil':14};
     const diffClass = {
       'Nil':'diff-nil','Unreal':'diff-unreal','Horrific':'diff-horrific','Catastrophic':'diff-catastrophic',
@@ -352,7 +353,7 @@
       // Game filter
       if (currentGame !== 'all') filtered = filtered.filter(o => (o.game || 'etoh').split('+').includes(currentGame));
 
-      if (currentSort === 'difficulty') filtered.sort((a, b) => (diffOrder[b.difficulty]||0) - (diffOrder[a.difficulty]||0));
+      if (currentSort === 'difficulty') filtered.sort((a, b) => (((b.diffNum || 0) > 0) ? (b.diffNum) : (DIFF_ORDER[b.difficulty] || 0)) - (((a.diffNum || 0) > 0) ? (a.diffNum) : (DIFF_ORDER[a.difficulty] || 0)));
       else if (currentSort === 'beat') filtered.sort((a, b) => b.players.length - a.players.length);
       else filtered.sort((a, b) => a.towerName.localeCompare(b.towerName));
 

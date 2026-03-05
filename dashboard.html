@@ -220,7 +220,7 @@
         <button class="dash-game-btn" id="dgf-etoh" onclick="filterDashGame('etoh')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">EToH</button>
         <button class="dash-game-btn" id="dgf-tea" onclick="filterDashGame('tea')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">TEA</button>
         <button class="dash-game-btn" id="dgf-cscd" onclick="filterDashGame('cscd')" style="font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.3rem 0.7rem;border:1.5px solid #E2E2E2;background:transparent;cursor:pointer;transition:all 0.2s;">CSCD</button>
-        <button class="add-completion-btn" data-id="add-btn" onclick="openModal()">+ Tambah Manual</button>
+        <button class="add-completion-btn" data-id="add-btn" id="add-manual-btn" onclick="openModal()" style="display:none;">+ Tambah Manual</button>
       </div>
     </div>
 
@@ -311,6 +311,7 @@
     const TOWERSTATS_API_KEY = '12e8fc20-0162-4eec-af87-377d1f5286e0-5a60a5b8-da15-475b-a2ca-ee92c4ba1143';
     const UNIVERSE_ID = 3264581003;
 
+    const DIFF_ORDER = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13,'Nil':14};
     const diffOrder = {'Easy':1,'Medium':2,'Hard':3,'Difficult':4,'Challenging':5,'Intense':6,'Remorseless':7,'Insane':8,'Extreme':9,'Terrifying':10,'Catastrophic':11,'Horrific':12,'Unreal':13,'Nil':14};
 
     const diffClass = {
@@ -346,6 +347,9 @@
         adminLink.style = 'font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0.5rem 1rem;background:#CE1126;color:white;border:1.5px solid #CE1126;text-decoration:none;';
         adminLink.textContent = '⚡ Admin Panel';
         document.querySelector('.nav-right').prepend(adminLink);
+        // Show add manual button only for admins
+        const addBtn = document.getElementById('add-manual-btn');
+        if (addBtn) addBtn.style.display = 'inline-block';
       }
     });
 
@@ -398,7 +402,7 @@
       }
 
       const filtered = _dashGame === 'all' ? completions : completions.filter(c => (c.game||'etoh').split('+').includes(_dashGame));
-      const sorted = [...filtered].sort((a, b) => (diffOrder[b.difficulty] || 0) - (diffOrder[a.difficulty] || 0));
+      const sorted = [...filtered].sort((a, b) => (((b.diffNum || 0) > 0) ? (b.diffNum) : (DIFF_ORDER[b.difficulty] || 0)) - (((a.diffNum || 0) > 0) ? (a.diffNum) : (DIFF_ORDER[a.difficulty] || 0)));
       tbody.innerHTML = sorted.map((c, i) => {
         const dClass = diffClass[c.difficulty] || 'diff-default';
         const nonCanonDiffs = ['Horrific','Unreal','Nil'];
@@ -494,6 +498,7 @@
     window.closeModalOutside = (e) => { if (e.target === document.getElementById('modal-overlay')) closeModal(); };
 
     window.saveCompletion = async () => {
+      if (!userData?.isAdmin) return;
       const name = document.getElementById('tower-name').value.trim();
       const diff = document.getElementById('tower-diff').value;
       const game = document.getElementById('tower-game').value;
